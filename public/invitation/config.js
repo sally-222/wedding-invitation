@@ -1,0 +1,115 @@
+window.WEDDING_CONFIG = {
+  couple: {
+    groom: "李辰海",
+    bride: "沙雷雨馨",
+    date: "2026.10.6",
+    dateISO: "2026-10-06T11:20:00+08:00",
+    venue: "中原油田宾馆",
+    address: "河南省濮阳市华龙区中原油田宾馆",
+    dressCode: "浅色低饱和度",
+    heroNote: "一场冷调胶片里的秋日午宴",
+    heroImage: "./assets/hero-editorial.jpg",
+    invitationLine: "诚邀您见证我们的婚礼",
+  },
+  contacts: {
+    groomPhone: "",
+    bridePhone: "",
+    phonePlaceholderText: "电话待补充",
+  },
+  map: {
+    label: "打开地图导航",
+    url: "https://uri.amap.com/search?keyword=%E6%B2%B3%E5%8D%97%E7%9C%81%E6%BF%AE%E9%98%B3%E5%B8%82%E5%8D%8E%E9%BE%99%E5%8C%BA%E4%B8%AD%E5%8E%9F%E6%B2%B9%E7%94%B0%E5%AE%BE%E9%A6%86&city=%E6%BF%AE%E9%98%B3&callnative=1",
+  },
+  music: {
+    title: "点击开启背景音乐",
+    audioUrl: "",
+    useBuiltInAmbientWhenNoAudio: true,
+  },
+  blessing: {
+    allowAnonymousWishes: true,
+    allowAnonymousReplies: true,
+  },
+  seatLookup: {
+    apiEndpoint: "",
+    invitationCodeLength: 6,
+    helpText: "邀请码会随电子请柬单独发送，一个邀请码只用于本次婚礼座位查询。",
+  },
+  schedule: [
+    { time: "10:00", title: "迎宾", detail: "请在签到处领取座位信息" },
+    { time: "11:20", title: "仪式开始", detail: "请提前入席，将手机调至静音" },
+    { time: "12:20", title: "婚礼午宴", detail: "一起举杯，慢慢享用午宴" },
+  ],
+  travelSpots: [
+    {
+      name: "濮阳裹凉皮",
+      category: "地方小吃",
+      description: "酸香清爽，适合婚礼前后轻松垫一口。",
+      image: "",
+      color: "#d8dedc",
+      dianpingUrl: "https://www.dianping.com/search/keyword/1090/0_%E6%BF%AE%E9%98%B3%E8%A3%B9%E5%87%89%E7%9A%AE",
+    },
+    {
+      name: "壮馍",
+      category: "濮阳风味",
+      description: "外皮酥脆、内馅扎实，是很有当地记忆的热食。",
+      image: "",
+      color: "#c9d2cf",
+      dianpingUrl: "https://www.dianping.com/search/keyword/1090/0_%E6%BF%AE%E9%98%B3%E5%A3%AE%E9%A6%8D",
+    },
+    {
+      name: "羊肉汤",
+      category: "暖胃正餐",
+      description: "汤色清亮，适合到达濮阳后的第一顿。",
+      image: "",
+      color: "#e3e1d8",
+      dianpingUrl: "https://www.dianping.com/search/keyword/1090/0_%E6%BF%AE%E9%98%B3%E7%BE%8A%E8%82%89%E6%B1%A4",
+    },
+    {
+      name: "中原油田宾馆周边餐饮",
+      category: "就近闲逛",
+      description: "距离婚礼场地近，方便亲友错峰用餐或小聚。",
+      image: "",
+      color: "#ccd6dd",
+      dianpingUrl: "https://www.dianping.com/search/keyword/1090/0_%E4%B8%AD%E5%8E%9F%E6%B2%B9%E7%94%B0%E5%AE%BE%E9%A6%86%20%E7%BE%8E%E9%A3%9F",
+    },
+  ],
+  photos: [
+    { title: "等待我们的照片 01", image: "./assets/hero-editorial.jpg", tone: "#dfe4e1" },
+    { title: "等待我们的照片 02", image: "./assets/hero-placeholder.jpg", tone: "#cbd6d2" },
+    { title: "胶片占位 03", image: "", tone: "#e8e7e1" },
+    { title: "胶片占位 04", image: "", tone: "#d1d7dd" },
+    { title: "胶片占位 05", image: "", tone: "#e4e1dc" },
+    { title: "胶片占位 06", image: "", tone: "#c6d0cb" },
+  ],
+  assetCredits: [
+    {
+      label: "临时首图：Devon Divine / Unsplash",
+      url: "https://unsplash.com/photos/Bo3FEzGRAOY",
+    },
+    {
+      label: "临时照片：Rene Terp / Pexels",
+      url: "https://www.pexels.com/photo/10091571/",
+    },
+  ],
+  blessingSeed: [
+    {
+      id: "seed-1",
+      name: "匿名亲友",
+      text: "愿你们在每一个普通日子里，都能把对方看成最好看的风景。",
+      replies: [{ name: "新人", text: "谢谢这份很温柔的祝福。" }],
+    },
+    {
+      id: "seed-2",
+      name: "老同学",
+      text: "祝新婚快乐，十月见！",
+      replies: [],
+    },
+  ],
+  seatingGuests: [
+    { name: "张明", invitationCode: "241006", table: "A03", seatNote: "男方亲友席" },
+    { name: "王晨", invitationCode: "110620", table: "B02", seatNote: "女方同学席" },
+    { name: "王晨", invitationCode: "882006", table: "C01", seatNote: "男方同事席" },
+    { name: "李想", invitationCode: "202610", table: "A01", seatNote: "主桌旁亲友席" },
+    { name: "沙晴", invitationCode: "061026", table: "A02", seatNote: "女方亲友席" },
+  ],
+};
