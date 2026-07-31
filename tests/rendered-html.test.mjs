@@ -52,8 +52,10 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceStyles, /--canvas:\s*#dfe7eb/);
   assert.match(sourceStyles, /--paper:\s*#f7f8f6/);
   assert.match(sourceStyles, /--sage:\s*#7d887b/);
-  assert.match(sourceStyles, /object-position:\s*51%\s+42%/);
+  assert.match(sourceStyles, /aspect-ratio:\s*2\s*\/\s*3/);
+  assert.match(sourceStyles, /object-fit:\s*contain/);
   assert.match(sourceApp, /我们的婚礼 · 2026 秋/);
+  assert.doesNotMatch(sourceApp, /FRAME 06|FILM \/ 2026/);
   assert.match(sourceApp, /replyAnonymous/);
   assert.match(sourceApp, /lookupSeat/);
 

@@ -108,10 +108,6 @@
 
           <div class="cover__image-wrap">
             <img class="cover__image" src="${escapeHtml(couple.heroImage)}" alt="李辰海与沙雷雨馨的婚纱照" />
-            <span class="cover__image-index">
-              <span>FRAME 06</span>
-              <span>FILM / 2026</span>
-            </span>
             <p class="cover__image-caption">我们的婚礼 · 2026 秋</p>
           </div>
 
