@@ -33,8 +33,15 @@ test("redirects the root route to the wedding invitation", async () => {
 });
 
 test("ships the approved wedding photo and cool-neutral theme", async () => {
-  const [sourceConfig, sourceStyles, sourceApp, builtConfig, builtStyles, builtApp, hero] =
-    await Promise.all([
+  const [
+    sourceConfig,
+    sourceStyles,
+    sourceApp,
+    builtConfig,
+    builtStyles,
+    builtApp,
+    hero,
+  ] = await Promise.all([
       readFile(new URL("../public/invitation/config.js", import.meta.url), "utf8"),
       readFile(new URL("../public/invitation/styles.css", import.meta.url), "utf8"),
       readFile(new URL("../public/invitation/app.js", import.meta.url), "utf8"),
@@ -54,7 +61,16 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceStyles, /--sage:\s*#7d887b/);
   assert.match(sourceStyles, /aspect-ratio:\s*2\s*\/\s*3/);
   assert.match(sourceStyles, /object-fit:\s*contain/);
-  assert.match(sourceApp, /我们的婚礼 · 2026 秋/);
+  assert.match(sourceStyles, /\.cover__title\s*\{[\s\S]*position:\s*absolute/);
+  assert.doesNotMatch(sourceStyles, /assets\/lace-|\.lace-accent/);
+  assert.doesNotMatch(sourceApp, /lace-accent/);
+  assert.match(sourceApp, /couple\.invitationLine/);
+  assert.doesNotMatch(sourceApp, /mote&sally|cover__closing/);
+  assert.match(sourceConfig, /invitationLine:\s*"诚邀您见证我们的婚礼"/);
+  assert.match(sourceConfig, /groomPhone:\s*"13164039297"/);
+  assert.match(sourceConfig, /bridePhone:\s*"16639311246"/);
+  assert.match(sourceApp, /id="contactDialog"/);
+  assert.match(sourceApp, /href="tel:\$\{escapeHtml\(contact\.phone\)\}"/);
   assert.doesNotMatch(sourceApp, /FRAME 06|FILM \/ 2026/);
   assert.match(sourceApp, /replyAnonymous/);
   assert.match(sourceApp, /lookupSeat/);

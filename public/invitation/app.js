@@ -108,26 +108,21 @@
 
           <div class="cover__image-wrap">
             <img class="cover__image" src="${escapeHtml(couple.heroImage)}" alt="李辰海与沙雷雨馨的婚纱照" />
-            <p class="cover__image-caption">我们的婚礼 · 2026 秋</p>
-          </div>
-
-          <div class="cover__title">
-            <h1 class="cover__names">
-              <span>${escapeHtml(couple.groom)}</span>
-              <span class="cover__amp">&amp;</span>
-              <span>${escapeHtml(couple.bride)}</span>
-            </h1>
-            <div class="cover__date">
-              <strong>${escapeHtml(day.padStart(2, "0"))}</strong>
-              <span>${escapeHtml(month)}</span>
-              <span>${escapeHtml(year)}</span>
+            <p class="cover__image-caption">${escapeHtml(couple.invitationLine)}</p>
+            <div class="cover__title">
+              <h1 class="cover__names">
+                <span>${escapeHtml(couple.groom)}</span>
+                <span class="cover__amp">&amp;</span>
+                <span>${escapeHtml(couple.bride)}</span>
+              </h1>
+              <div class="cover__date">
+                <strong>${escapeHtml(day.padStart(2, "0"))}</strong>
+                <span>${escapeHtml(month)}</span>
+                <span>${escapeHtml(year)}</span>
+              </div>
             </div>
           </div>
 
-          <div class="cover__closing">
-            <p class="cover__invitation">${escapeHtml(couple.invitationLine)}</p>
-            <p class="cover__note">${escapeHtml(couple.heroNote)}</p>
-          </div>
         </article>
 
         <section class="home-details">
@@ -316,6 +311,41 @@
     `;
   }
 
+  function renderContactDialog() {
+    const contacts = [
+      { role: "新郎", name: config.couple.groom, phone: config.contacts.groomPhone },
+      { role: "新娘", name: config.couple.bride, phone: config.contacts.bridePhone },
+    ].filter((contact) => contact.phone);
+
+    return `
+      <dialog class="contact-dialog" id="contactDialog" aria-labelledby="contactDialogTitle">
+        <div class="contact-dialog__head">
+          <div>
+            <p class="contact-dialog__eyebrow">Contact</p>
+            <h2 id="contactDialogTitle">联系新人</h2>
+          </div>
+          <button class="contact-dialog__close" id="contactDialogClose" type="button" aria-label="关闭">×</button>
+        </div>
+        <div class="contact-dialog__list">
+          ${contacts
+            .map(
+              (contact) => `
+                <a class="contact-dialog__item" href="tel:${escapeHtml(contact.phone)}">
+                  <span>
+                    <small>${escapeHtml(contact.role)}</small>
+                    <strong>${escapeHtml(contact.name)}</strong>
+                  </span>
+                  <span class="contact-dialog__phone">${escapeHtml(contact.phone)}</span>
+                  <span class="contact-dialog__call" aria-hidden="true">☎</span>
+                </a>
+              `,
+            )
+            .join("")}
+        </div>
+      </dialog>
+    `;
+  }
+
   function render() {
     app.innerHTML = [
       renderHome(),
@@ -324,6 +354,7 @@
       renderWishes(),
       renderSeats(),
       renderLightbox(),
+      renderContactDialog(),
     ].join("");
     bindNavigation();
     bindHomeActions();
@@ -354,6 +385,11 @@
 
   function bindHomeActions() {
     document.querySelector("#phoneButton").addEventListener("click", contactNewlyweds);
+    const contactDialog = document.querySelector("#contactDialog");
+    document.querySelector("#contactDialogClose").addEventListener("click", () => contactDialog.close());
+    contactDialog.addEventListener("click", (event) => {
+      if (event.target === contactDialog) contactDialog.close();
+    });
 
     document.querySelector("#musicButton").addEventListener("click", async (event) => {
       if (!audioController) audioController = createAudioController();
@@ -370,7 +406,9 @@
       showToast(config.contacts.phonePlaceholderText || "电话待补充");
       return;
     }
-    window.location.href = `tel:${phones[0]}`;
+    const contactDialog = document.querySelector("#contactDialog");
+    if (typeof contactDialog.showModal === "function") contactDialog.showModal();
+    else contactDialog.setAttribute("open", "");
   }
 
   function createAudioController() {
