@@ -61,6 +61,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceStyles, /--paper-deep:\s*#e7e2d9/);
   assert.match(sourceStyles, /--sage:\s*#8fa3b8/);
   assert.match(sourceStyles, /--sage-dark:\s*#56697d/);
+  assert.match(sourceStyles, /\.page--tinted\s*\{[\s\S]*background:\s*#f3f3f0/);
   assert.match(sourceStyles, /aspect-ratio:\s*2\s*\/\s*3/);
   assert.match(sourceStyles, /object-fit:\s*contain/);
   assert.match(sourceStyles, /\.cover__title\s*\{[\s\S]*position:\s*absolute/);

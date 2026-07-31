@@ -426,7 +426,7 @@ button {
 }
 
 .page--tinted {
-  background: var(--paper-deep);
+  background: #f3f3f0;
 }
 
 .page-head {
