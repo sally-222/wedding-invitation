@@ -8,7 +8,7 @@ window.WEDDING_CONFIG = {
     address: "河南省濮阳市华龙区中原油田宾馆",
     dressCode: "浅色低饱和度",
     heroNote: "一场冷调胶片里的秋日午宴",
-    heroImage: "./assets/hero-editorial.jpg",
+    heroImage: "./assets/wedding-hero.jpg",
     invitationLine: "诚邀您见证我们的婚礼",
   },
   contacts: {

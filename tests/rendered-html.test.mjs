@@ -1,13 +1,8 @@
 import assert from "node:assert/strict";
-import { access, readFile, readdir } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-const developmentPreviewMeta =
-  /<meta(?=[^>]*\bname=["']codex-preview["'])(?=[^>]*\bcontent=["']development["'])[^>]*>/i;
-const templateRoot = new URL("../", import.meta.url);
-const previewRoot = new URL("../app/_sites-preview/", import.meta.url);
-
-async function render() {
+async function renderRoot() {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
@@ -28,64 +23,42 @@ async function render() {
   );
 }
 
-test("server-renders the starter loading skeleton", async () => {
-  const response = await render();
-  assert.equal(response.status, 200);
-  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
-
-  const html = await response.text();
-  assert.match(html, developmentPreviewMeta);
-  assert.match(html, /<title>Your site is taking shape<\/title>/i);
-  assert.match(html, /Building your site/);
-  assert.match(html, /Your site is taking shape/);
-  assert.match(
-    html,
-    /Your first version will appear here automatically when it’s ready\./,
+test("redirects the root route to the wedding invitation", async () => {
+  const response = await renderRoot();
+  assert.equal(response.status, 307);
+  assert.equal(
+    new URL(response.headers.get("location"), "http://localhost").pathname,
+    "/invitation/index.html",
   );
-  assert.doesNotMatch(html, /Codex/);
-  assert.match(html, /react-loading-skeleton/);
-  assert.match(html, /role="status"/);
 });
 
-test("keeps the loading skeleton scoped and disposable", async () => {
-  const [preview, css, page, layout, packageJson, files] = await Promise.all([
-    readFile(new URL("SkeletonPreview.tsx", previewRoot), "utf8"),
-    readFile(new URL("preview.css", previewRoot), "utf8"),
-    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../package.json", import.meta.url), "utf8"),
-    readdir(previewRoot),
-  ]);
+test("ships the approved wedding photo and cool-neutral theme", async () => {
+  const [sourceConfig, sourceStyles, sourceApp, builtConfig, builtStyles, builtApp, hero] =
+    await Promise.all([
+      readFile(new URL("../public/invitation/config.js", import.meta.url), "utf8"),
+      readFile(new URL("../public/invitation/styles.css", import.meta.url), "utf8"),
+      readFile(new URL("../public/invitation/app.js", import.meta.url), "utf8"),
+      readFile(new URL("../dist/client/invitation/config.js", import.meta.url), "utf8"),
+      readFile(new URL("../dist/client/invitation/styles.css", import.meta.url), "utf8"),
+      readFile(new URL("../dist/client/invitation/app.js", import.meta.url), "utf8"),
+      readFile(new URL("../dist/client/invitation/assets/wedding-hero.jpg", import.meta.url)),
+    ]);
 
-  assert.deepEqual(files.sort(), ["SkeletonPreview.tsx", "preview.css"]);
-  assert.match(preview, /from "react-loading-skeleton"/);
-  assert.match(preview, /baseColor="#eceae7"/);
-  assert.match(preview, /highlightColor="#f9f8f6"/);
-  assert.match(preview, /duration=\{2\.8\}/);
-  assert.match(preview, /sites-skeleton-search-placeholder/);
-  assert.match(packageJson, /"react-loading-skeleton": "3\.5\.0"/);
+  assert.equal(builtConfig, sourceConfig);
+  assert.equal(builtStyles, sourceStyles);
+  assert.equal(builtApp, sourceApp);
 
-  const shellIndex = preview.indexOf('className="sites-skeleton-shell"');
-  const statusIndex = preview.indexOf('className="sites-skeleton-status"');
-  assert.ok(shellIndex >= 0 && statusIndex > shellIndex);
-  assert.match(css, /position:\s*fixed/);
-  assert.match(css, /inset:\s*0/);
-  assert.match(css, /opacity:\s*0\.52/);
-  assert.match(css, /prefers-reduced-motion:\s*reduce/);
-  assert.doesNotMatch(css, /#020617|canvas|pets|progress/i);
-  assert.doesNotMatch(
-    preview,
-    /loading-spinner|status-mark|status-progress|canvas|cookie|random/i,
-  );
+  assert.match(sourceConfig, /heroImage:\s*"\.\/assets\/wedding-hero\.jpg"/);
+  assert.match(sourceStyles, /--canvas:\s*#dfe7eb/);
+  assert.match(sourceStyles, /--paper:\s*#f7f8f6/);
+  assert.match(sourceStyles, /--sage:\s*#7d887b/);
+  assert.match(sourceStyles, /object-position:\s*51%\s+42%/);
+  assert.match(sourceApp, /我们的婚礼 · 2026 秋/);
+  assert.match(sourceApp, /replyAnonymous/);
+  assert.match(sourceApp, /lookupSeat/);
 
-  assert.match(page, /export const metadata:\s*Metadata/);
-  assert.match(page, /"codex-preview": "development"/);
-  assert.match(page, /<SkeletonPreview \/>/);
-  assert.match(layout, /title:\s*"Starter Project"/);
-  assert.doesNotMatch(layout, /codex-preview|_sites-preview|themeColor|\bViewport\b/);
-  assert.doesNotMatch(css, /(^|\s)(html|body)\s*\{/m);
-
-  await assert.rejects(
-    access(new URL("public/_sites-preview", templateRoot)),
-  );
+  assert.equal(hero[0], 0xff);
+  assert.equal(hero[1], 0xd8);
+  assert.ok(hero.byteLength > 100_000);
+  assert.ok(hero.byteLength < 1_000_000);
 });
