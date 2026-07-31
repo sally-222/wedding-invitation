@@ -56,9 +56,11 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.equal(builtApp, sourceApp);
 
   assert.match(sourceConfig, /heroImage:\s*"\.\/assets\/wedding-hero\.jpg"/);
-  assert.match(sourceStyles, /--canvas:\s*#dfe7eb/);
-  assert.match(sourceStyles, /--paper:\s*#f7f8f6/);
-  assert.match(sourceStyles, /--sage:\s*#7d887b/);
+  assert.match(sourceStyles, /--canvas:\s*#d7e3ee/);
+  assert.match(sourceStyles, /--paper:\s*#f6f4ef/);
+  assert.match(sourceStyles, /--paper-deep:\s*#e7e2d9/);
+  assert.match(sourceStyles, /--sage:\s*#8fa3b8/);
+  assert.match(sourceStyles, /--sage-dark:\s*#56697d/);
   assert.match(sourceStyles, /aspect-ratio:\s*2\s*\/\s*3/);
   assert.match(sourceStyles, /object-fit:\s*contain/);
   assert.match(sourceStyles, /\.cover__title\s*\{[\s\S]*position:\s*absolute/);
