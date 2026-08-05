@@ -3,7 +3,13 @@
   const app = document.querySelector("#app");
   const storageKey = "wedding-wishes-v2";
   const seedRepliesStorageKey = "wedding-seed-replies-v1";
+  const wishApiEndpoint = config.blessing?.apiEndpoint || "";
   let audioController = null;
+  let musicAutoplayAttempted = false;
+  let musicAutoResumeBound = false;
+  let musicUserPaused = false;
+  let remoteWishes = null;
+  let wishApiStatus = wishApiEndpoint ? "unknown" : "unavailable";
 
   function escapeHtml(value) {
     return String(value ?? "")
@@ -41,12 +47,29 @@
   }
 
   function allWishes() {
+    if (Array.isArray(remoteWishes)) return remoteWishes;
+    if (wishApiEndpoint) return [];
     const storedSeedReplies = getStoredSeedReplies();
     const seeds = config.blessingSeed.map((wish) => ({
       ...wish,
       replies: [...(wish.replies || []), ...(storedSeedReplies[wish.id] || [])],
     }));
     return [...getStoredWishes(), ...seeds];
+  }
+
+  async function postJson(url, payload) {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const error = new Error(data.error || "请求暂时无法完成");
+      error.status = response.status;
+      throw error;
+    }
+    return data;
   }
 
   function pageHeader(index, english, title, copy) {
@@ -74,6 +97,22 @@
           .join("")}
       </div>
     `;
+  }
+
+  function getTravelModel() {
+    const travelData = window.WEDDING_TRAVEL_DATA || {};
+    const sourceSpots = Array.isArray(travelData.spots) && travelData.spots.length
+      ? travelData.spots
+      : config.travelSpots || [];
+    const spots = sourceSpots
+      .map((spot, index) => ({ ...spot, sort: Number(spot.sort || index + 1) }))
+      .sort((a, b) => a.sort - b.sort);
+    const configuredCategories = Array.isArray(travelData.categories)
+      ? travelData.categories.map((item) => (typeof item === "string" ? item : item.name)).filter(Boolean)
+      : [];
+    const spotCategories = spots.map((spot) => spot.category).filter(Boolean);
+    const categories = Array.from(new Set([...configuredCategories, ...spotCategories]));
+    return { categories, spots };
   }
 
   function renderHome() {
@@ -184,21 +223,34 @@
   }
 
   function renderTravel() {
-    const cards = config.travelSpots
+    const { categories, spots } = getTravelModel();
+    const filters = [
+      `<button class="travel-filter__item is-active" type="button" data-travel-filter="all" aria-pressed="true">全部</button>`,
+      ...categories.map(
+        (category) =>
+          `<button class="travel-filter__item" type="button" data-travel-filter="${escapeHtml(category)}" aria-pressed="false">${escapeHtml(category)}</button>`,
+      ),
+    ].join("");
+    const cards = spots
       .map((spot, index) => {
         const image = spot.image
           ? `<div class="travel-card__image"><img src="${escapeHtml(spot.image)}" alt="${escapeHtml(spot.name)}" loading="lazy" /></div>`
           : `<div class="travel-card__image is-placeholder" data-mark="${escapeHtml(spot.name.slice(0, 1))}" style="background:${escapeHtml(spot.color)}" aria-hidden="true"></div>`;
+        const url = spot.dianpingUrl || spot.link || "";
+        const cardBody = `
+          ${image}
+          <div class="travel-card__body">
+            <span class="travel-card__category">${String(index + 1).padStart(2, "0")} · ${escapeHtml(spot.category)}</span>
+            <h2 class="travel-card__name">${escapeHtml(spot.name)}</h2>
+            <p class="travel-card__desc">${escapeHtml(spot.description)}</p>
+            <span class="travel-card__link">${url ? "大众点评 ↗" : "链接待补充"}</span>
+          </div>
+        `;
+        if (!url) {
+          return `<article class="travel-card is-disabled" data-travel-card data-category="${escapeHtml(spot.category)}">${cardBody}</article>`;
+        }
         return `
-          <a class="travel-card" href="${escapeHtml(spot.dianpingUrl)}" target="_blank" rel="noreferrer">
-            ${image}
-            <div class="travel-card__body">
-              <span class="travel-card__category">0${index + 1} · ${escapeHtml(spot.category)}</span>
-              <h2 class="travel-card__name">${escapeHtml(spot.name)}</h2>
-              <p class="travel-card__desc">${escapeHtml(spot.description)}</p>
-              <span class="travel-card__link">大众点评 ↗</span>
-            </div>
-          </a>
+          <a class="travel-card" href="${escapeHtml(url)}" target="_blank" rel="noreferrer" data-travel-card data-category="${escapeHtml(spot.category)}">${cardBody}</a>
         `;
       })
       .join("");
@@ -207,39 +259,60 @@
       <section id="travel" class="view" data-view>
         <div class="page page--tinted">
           ${pageHeader("02 / 05", "Local taste", "赴宴闲游", "婚礼之外，也留一点时间给濮阳。点击一处风味，打开大众点评查看。")}
+          <div class="travel-filter" aria-label="闲游分类">${filters}</div>
           <div class="travel-grid">${cards}</div>
+          <p class="travel-empty" id="travelEmpty" hidden>这个分类暂时还没有内容。</p>
         </div>
       </section>
     `;
   }
 
   function renderPhotos() {
-    const photos = config.photos
-      .map((photo, index) => {
-        const number = String(index + 1).padStart(2, "0");
-        const media = photo.image
-          ? `<div class="photo-item__image"><img src="${escapeHtml(photo.image)}" alt="${escapeHtml(photo.title)}" loading="lazy" /></div>`
-          : `<div class="photo-item__image is-placeholder" style="background:${escapeHtml(photo.tone)}" aria-hidden="true"></div>`;
-        return `
-          <figure class="photo-item">
-            <button class="photo-item__button" type="button" ${photo.image ? `data-image="${escapeHtml(photo.image)}" data-title="${escapeHtml(photo.title)}"` : "disabled"} aria-label="${photo.image ? `查看${escapeHtml(photo.title)}` : escapeHtml(photo.title)}">
-              ${media}
-            </button>
-            <figcaption class="photo-item__caption">
-              <span>${escapeHtml(photo.title)}</span>
-              <span class="photo-item__number">${number}</span>
-            </figcaption>
-          </figure>
-        `;
-      })
-      .join("");
+    const album = window.WEDDING_PHOTO_ALBUM || {};
+    const pages = [album.cover, ...(Array.isArray(album.pages) ? album.pages : [])].filter(
+      (page) => page && page.src,
+    );
+    const cover = pages[0] || { src: "", alt: "婚礼相册" };
+    const followingPage = pages[1] || cover;
+    const innerPageCount = Math.max(0, pages.length - 1);
 
     return `
       <section id="photos" class="view" data-view>
-        <div class="page">
-          ${pageHeader("03 / 05", "Our frames", "照片墙", "真实照片到位后会保持这组胶片式比例和错落节奏，直接替换当前占位内容。")}
-          <div class="photo-wall">${photos}</div>
-          ${renderCredits()}
+        <div class="page page--album">
+          ${pageHeader("03 / 05", "Our album", "照片墙", "从封面开始，按原有编排依次收录我们的故事。")}
+          <div class="photo-album" id="photoAlbum" aria-label="${escapeHtml(album.title || "我们的婚礼相册")}">
+            <div class="photo-album__book" id="photoAlbumBook">
+              <span class="photo-album__spine" aria-hidden="true"></span>
+              <span class="photo-album__page-edges" aria-hidden="true"></span>
+              <div class="photo-album__stage" id="photoAlbumStage">
+                <div class="album-page album-page--under" aria-hidden="true">
+                  <img id="photoAlbumUnderImage" src="${escapeHtml(followingPage.src)}" alt="" draggable="false" />
+                </div>
+                <div class="album-page album-page--active is-cover" id="photoAlbumPage" role="button" tabindex="0" aria-label="放大查看相册封面">
+                  <img id="photoAlbumImage" src="${escapeHtml(cover.src)}" alt="${escapeHtml(cover.alt)}" draggable="false" />
+                  <span class="album-page__fold" aria-hidden="true"></span>
+                </div>
+                <button class="album-turn-zone album-turn-zone--previous" id="photoAlbumPreviousEdge" type="button" aria-label="上一页" disabled></button>
+                <button class="album-turn-zone album-turn-zone--next" id="photoAlbumNextEdge" type="button" aria-label="下一页"></button>
+              </div>
+            </div>
+            <div class="photo-album__controls">
+              <button class="photo-album__nav" id="photoAlbumPrevious" type="button" aria-label="上一页" title="上一页" disabled>
+                <span aria-hidden="true">←</span>
+              </button>
+              <div class="photo-album__counter" id="photoAlbumCounter" aria-live="polite">
+                <span id="photoAlbumCurrent">封面</span>
+                <span class="photo-album__counter-rule" aria-hidden="true"></span>
+                <span>${escapeHtml(innerPageCount)}</span>
+              </div>
+              <button class="photo-album__nav" id="photoAlbumNext" type="button" aria-label="下一页" title="下一页">
+                <span aria-hidden="true">→</span>
+              </button>
+            </div>
+            <div class="photo-album__progress" role="progressbar" aria-label="相册阅读进度" aria-valuemin="1" aria-valuemax="${escapeHtml(pages.length)}" aria-valuenow="1">
+              <span id="photoAlbumProgress" style="width:${pages.length ? 100 / pages.length : 100}%"></span>
+            </div>
+          </div>
         </div>
       </section>
     `;
@@ -293,7 +366,7 @@
             </label>
             <button class="button button--wide" type="submit">查看我的席位</button>
             <p class="helper-text">${escapeHtml(config.seatLookup.helpText)}</p>
-            <p class="helper-text">演示查询：张明＋241006，或王晨＋110620。</p>
+            <p class="helper-text">演示查询：胡阳＋728416，或韩旭＋593827。</p>
             <button class="seat-help" id="seatHelpButton" type="button">没有找到邀请码？联系新人</button>
           </form>
           <div id="seatResult" aria-live="polite"></div>
@@ -358,11 +431,36 @@
     ].join("");
     bindNavigation();
     bindHomeActions();
+    bindTravel();
     bindPhotos();
     bindWishes();
     bindSeats();
     updateCountdown();
     window.setInterval(updateCountdown, 60 * 1000);
+    attemptAutoplayMusic();
+  }
+
+  function bindTravel() {
+    const filters = Array.from(document.querySelectorAll("[data-travel-filter]"));
+    const cards = Array.from(document.querySelectorAll("[data-travel-card]"));
+    const empty = document.querySelector("#travelEmpty");
+    filters.forEach((filter) => {
+      filter.addEventListener("click", () => {
+        const category = filter.dataset.travelFilter;
+        let visibleCount = 0;
+        filters.forEach((item) => {
+          const active = item === filter;
+          item.classList.toggle("is-active", active);
+          item.setAttribute("aria-pressed", String(active));
+        });
+        cards.forEach((card) => {
+          const visible = category === "all" || card.dataset.category === category;
+          card.hidden = !visible;
+          if (visible) visibleCount += 1;
+        });
+        if (empty) empty.hidden = visibleCount > 0;
+      });
+    });
   }
 
   function bindNavigation() {
@@ -391,13 +489,52 @@
       if (event.target === contactDialog) contactDialog.close();
     });
 
-    document.querySelector("#musicButton").addEventListener("click", async (event) => {
-      if (!audioController) audioController = createAudioController();
-      const isPlaying = await audioController.toggle();
-      event.currentTarget.classList.toggle("is-playing", isPlaying);
-      event.currentTarget.setAttribute("aria-label", isPlaying ? "暂停背景音乐" : config.music.title);
+    document.querySelector("#musicButton").addEventListener("click", async () => {
+      const isPlaying = await getAudioController().toggle();
+      musicUserPaused = !isPlaying;
+      syncMusicButton(isPlaying);
       showToast(isPlaying ? "背景音乐已开启" : "背景音乐已暂停");
     });
+    syncMusicButton();
+  }
+
+  function getAudioController() {
+    if (!audioController) audioController = createAudioController();
+    return audioController;
+  }
+
+  function syncMusicButton(isPlaying = getAudioController().isPlaying()) {
+    const button = document.querySelector("#musicButton");
+    if (!button) return;
+    button.classList.toggle("is-playing", isPlaying);
+    button.setAttribute("aria-label", isPlaying ? "暂停背景音乐" : config.music.title);
+    button.setAttribute("title", isPlaying ? "暂停背景音乐" : config.music.title);
+    const mark = button.querySelector(".cover__music-mark");
+    if (mark) mark.textContent = isPlaying ? "Ⅱ" : "♪";
+  }
+
+  async function attemptAutoplayMusic() {
+    if (musicAutoplayAttempted) return;
+    musicAutoplayAttempted = true;
+    const isPlaying = await getAudioController().play({ silent: true });
+    syncMusicButton(isPlaying);
+    if (!isPlaying) bindFirstInteractionMusicResume();
+  }
+
+  function bindFirstInteractionMusicResume() {
+    if (musicAutoResumeBound) return;
+    musicAutoResumeBound = true;
+    const events = ["pointerdown", "touchstart", "click", "keydown"];
+    const resume = async (event) => {
+      if (musicUserPaused || event.target?.closest?.("#musicButton")) return;
+      const isPlaying = await getAudioController().play({ silent: true });
+      syncMusicButton(isPlaying);
+      if (isPlaying) {
+        events.forEach((name) => document.removeEventListener(name, resume, true));
+        musicAutoResumeBound = false;
+      }
+    };
+    events.forEach((name) => document.addEventListener(name, resume, true));
   }
 
   function contactNewlyweds() {
@@ -413,17 +550,38 @@
 
   function createAudioController() {
     if (config.music.audioUrl) {
-      const audio = new Audio(config.music.audioUrl);
+      const audio =
+        window.__weddingMusicAudio ||
+        Object.assign(new Audio(config.music.audioUrl), {
+          loop: true,
+          preload: "auto",
+        });
+      window.__weddingMusicAudio = audio;
+      audio.src = config.music.audioUrl;
       audio.loop = true;
       audio.preload = "auto";
+      audio.playsInline = true;
+      audio.volume = Number(config.music.volume || 0.72);
       return {
-        async toggle() {
-          if (audio.paused) {
+        async play(options = {}) {
+          if (!audio.paused) return true;
+          try {
             await audio.play();
             return true;
+          } catch {
+            if (!options.silent) showToast("音乐暂时无法播放，请确认浏览器允许声音");
+            return false;
           }
+        },
+        pause() {
           audio.pause();
           return false;
+        },
+        async toggle() {
+          return audio.paused ? this.play() : this.pause();
+        },
+        isPlaying() {
+          return !audio.paused;
         },
       };
     }
@@ -449,15 +607,11 @@
     }
 
     return {
-      async toggle() {
-        if (timer) {
-          window.clearInterval(timer);
-          timer = null;
-          return false;
-        }
+      async play(options = {}) {
+        if (timer) return true;
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
         if (!AudioContextClass) {
-          showToast("当前浏览器暂不支持内置背景音乐，请在配置中替换为音频文件");
+          if (!options.silent) showToast("当前浏览器暂不支持内置背景音乐，请在配置中替换为音频文件");
           return false;
         }
         context = context || new AudioContextClass();
@@ -466,22 +620,129 @@
         timer = window.setInterval(playNote, 1900);
         return true;
       },
+      pause() {
+        if (timer) {
+          window.clearInterval(timer);
+          timer = null;
+        }
+        return false;
+      },
+      async toggle() {
+        return timer ? this.pause() : this.play();
+      },
+      isPlaying() {
+        return Boolean(timer);
+      },
     };
   }
 
   function bindPhotos() {
+    const album = window.WEDDING_PHOTO_ALBUM || {};
+    const pages = [album.cover, ...(Array.isArray(album.pages) ? album.pages : [])].filter(
+      (page) => page && page.src,
+    );
+    const book = document.querySelector("#photoAlbumBook");
+    const stage = document.querySelector("#photoAlbumStage");
+    const activePage = document.querySelector("#photoAlbumPage");
+    const activeImage = document.querySelector("#photoAlbumImage");
+    const underImage = document.querySelector("#photoAlbumUnderImage");
+    const previousButton = document.querySelector("#photoAlbumPrevious");
+    const nextButton = document.querySelector("#photoAlbumNext");
+    const previousEdge = document.querySelector("#photoAlbumPreviousEdge");
+    const nextEdge = document.querySelector("#photoAlbumNextEdge");
+    const currentLabel = document.querySelector("#photoAlbumCurrent");
+    const progress = document.querySelector("#photoAlbumProgress");
+    const progressBar = progress?.parentElement;
     const lightbox = document.querySelector("#lightbox");
     const lightboxImage = document.querySelector("#lightboxImage");
     const closeButton = document.querySelector("#lightboxClose");
+    let currentIndex = 0;
+    let isTurning = false;
+    let pointerStart = null;
 
-    document.querySelectorAll(".photo-item__button[data-image]").forEach((button) => {
-      button.addEventListener("click", () => {
-        lightboxImage.src = button.dataset.image;
-        lightboxImage.alt = button.dataset.title || "婚礼照片";
-        lightbox.hidden = false;
-        document.body.style.overflow = "hidden";
-        closeButton.focus();
-      });
+    function preloadPage(index) {
+      if (!pages[index]) return;
+      const image = new Image();
+      image.src = pages[index].src;
+    }
+
+    function updateAlbumState() {
+      const current = pages[currentIndex];
+      if (!current) return;
+      activeImage.src = current.src;
+      activeImage.alt = current.alt || "婚礼相册";
+      activePage.classList.toggle("is-cover", currentIndex === 0);
+      activePage.setAttribute("aria-label", currentIndex === 0 ? "放大查看相册封面" : `放大查看相册第 ${currentIndex} 页`);
+      currentLabel.textContent = currentIndex === 0 ? "封面" : String(currentIndex).padStart(2, "0");
+      const atStart = currentIndex === 0;
+      const atEnd = currentIndex === pages.length - 1;
+      previousButton.disabled = atStart;
+      previousEdge.disabled = atStart;
+      nextButton.disabled = atEnd;
+      nextEdge.disabled = atEnd;
+      const progressValue = pages.length ? ((currentIndex + 1) / pages.length) * 100 : 100;
+      progress.style.width = `${progressValue}%`;
+      progressBar?.setAttribute("aria-valuenow", String(currentIndex + 1));
+      preloadPage(currentIndex - 1);
+      preloadPage(currentIndex + 1);
+    }
+
+    function turnPage(direction) {
+      if (isTurning || !pages.length) return;
+      const nextIndex = currentIndex + direction;
+      if (nextIndex < 0 || nextIndex >= pages.length) return;
+      isTurning = true;
+      const incoming = pages[nextIndex];
+      underImage.src = incoming.src;
+      book.classList.add(direction > 0 ? "is-turning-next" : "is-turning-previous");
+
+      let finished = false;
+      const finishTurn = () => {
+        if (finished) return;
+        finished = true;
+        currentIndex = nextIndex;
+        updateAlbumState();
+        book.classList.remove("is-turning-next", "is-turning-previous");
+        isTurning = false;
+      };
+      activePage.addEventListener("animationend", finishTurn, { once: true });
+      window.setTimeout(finishTurn, 760);
+    }
+
+    function openCurrentPage() {
+      const current = pages[currentIndex];
+      if (!current) return;
+      lightboxImage.src = current.src;
+      lightboxImage.alt = current.alt || "婚礼照片";
+      lightbox.hidden = false;
+      document.body.style.overflow = "hidden";
+      closeButton.focus();
+    }
+
+    previousButton.addEventListener("click", () => turnPage(-1));
+    previousEdge.addEventListener("click", () => turnPage(-1));
+    nextButton.addEventListener("click", () => turnPage(1));
+    nextEdge.addEventListener("click", () => turnPage(1));
+    activePage.addEventListener("click", openCurrentPage);
+    activePage.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      openCurrentPage();
+    });
+
+    stage.addEventListener("pointerdown", (event) => {
+      pointerStart = { x: event.clientX, y: event.clientY };
+    });
+    stage.addEventListener("pointerup", (event) => {
+      if (!pointerStart) return;
+      const deltaX = event.clientX - pointerStart.x;
+      const deltaY = event.clientY - pointerStart.y;
+      pointerStart = null;
+      if (Math.abs(deltaX) < 44 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) return;
+      turnPage(deltaX < 0 ? 1 : -1);
+    });
+    stage.addEventListener("pointercancel", () => {
+      pointerStart = null;
     });
 
     function closeLightbox() {
@@ -495,8 +756,16 @@
       if (event.target === lightbox) closeLightbox();
     });
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && !lightbox.hidden) closeLightbox();
+      if (event.key === "Escape" && !lightbox.hidden) {
+        closeLightbox();
+        return;
+      }
+      if (!lightbox.hidden || !document.querySelector("#photos")?.classList.contains("is-active")) return;
+      if (event.key === "ArrowLeft") turnPage(-1);
+      if (event.key === "ArrowRight") turnPage(1);
     });
+
+    updateAlbumState();
   }
 
   function bindAnonymousToggle(form, checkboxName, nameFieldName) {
@@ -517,39 +786,120 @@
     const syncWishAuthor = bindAnonymousToggle(form, "anonymous", "name");
     form.addEventListener("submit", (event) => {
       event.preventDefault();
-      const formData = new FormData(form);
-      const text = String(formData.get("text") || "").trim();
-      const anonymous = formData.get("anonymous") === "on";
-      const enteredName = String(formData.get("name") || "").trim();
-      if (!text) {
-        showToast("请先写下祝福内容");
-        return;
-      }
-      if (!anonymous && !enteredName) {
-        showToast("请填写姓名，或选择匿名留言");
-        return;
-      }
-
-      const wishes = getStoredWishes();
-      wishes.unshift({
-        id: `wish-${Date.now()}`,
-        name: anonymous ? "匿名亲友" : enteredName,
-        text,
-        replies: [],
-        createdAt: new Date().toISOString(),
-      });
-      setStoredWishes(wishes);
-      form.reset();
-      syncWishAuthor();
-      renderWishList();
-      showToast("祝福已发布");
+      submitWish(form, syncWishAuthor);
     });
     renderWishList();
+    loadRemoteWishes();
+  }
+
+  async function loadRemoteWishes() {
+    if (!wishApiEndpoint) return;
+    try {
+      const response = await fetch(wishApiEndpoint, { headers: { Accept: "application/json" } });
+      if (!response.ok) {
+        wishApiStatus = response.status === 404 ? "unavailable" : "error";
+        remoteWishes = null;
+        renderWishList();
+        return;
+      }
+      const data = await response.json();
+      wishApiStatus = "available";
+      remoteWishes = Array.isArray(data.wishes) ? data.wishes : [];
+      renderWishList();
+    } catch {
+      wishApiStatus = "unavailable";
+      remoteWishes = null;
+      renderWishList();
+    }
+  }
+
+  async function submitWish(form, syncWishAuthor) {
+    const formData = new FormData(form);
+    const text = String(formData.get("text") || "").trim();
+    const anonymous = formData.get("anonymous") === "on";
+    const enteredName = String(formData.get("name") || "").trim();
+    if (!text) {
+      showToast("请先写下祝福内容");
+      return;
+    }
+    if (!anonymous && !enteredName) {
+      showToast("请填写姓名，或选择匿名留言");
+      return;
+    }
+
+    const submitButton = form.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.textContent = "正在发布";
+    if (wishApiEndpoint) {
+      if (wishApiStatus === "unavailable") {
+        showToast("当前预览未连接数据库，请使用带数据库的预览链接");
+        submitButton.disabled = false;
+        submitButton.textContent = "发布祝福";
+        return;
+      }
+      try {
+        const data = await postJson(wishApiEndpoint, {
+          name: enteredName,
+          text,
+          anonymous,
+        });
+        wishApiStatus = "available";
+        remoteWishes = Array.isArray(remoteWishes) ? remoteWishes : [];
+        remoteWishes.unshift(data.wish);
+        form.reset();
+        syncWishAuthor();
+        renderWishList();
+        showToast("祝福已发布");
+        return;
+      } catch (error) {
+        wishApiStatus = error.status === 404 ? "unavailable" : "error";
+        remoteWishes = null;
+        renderWishList();
+        showToast(error.status === 404 ? "当前预览未连接数据库，请使用带数据库的预览链接" : "祝福暂时无法发布，请稍后重试");
+        return;
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = "发布祝福";
+      }
+    }
+
+    const wishes = getStoredWishes();
+    wishes.unshift({
+      id: `wish-${Date.now()}`,
+      name: anonymous ? "匿名亲友" : enteredName,
+      text,
+      replies: [],
+      createdAt: new Date().toISOString(),
+    });
+    setStoredWishes(wishes);
+    form.reset();
+    syncWishAuthor();
+    renderWishList();
+    showToast("祝福已发布");
+    submitButton.disabled = false;
+    submitButton.textContent = "发布祝福";
   }
 
   function renderWishList() {
     const list = document.querySelector("#wishList");
-    list.innerHTML = allWishes()
+    if (wishApiEndpoint && wishApiStatus === "unknown") {
+      list.innerHTML = '<div class="wish-empty">正在读取祝福...</div>';
+      return;
+    }
+    if (wishApiEndpoint && wishApiStatus === "unavailable") {
+      list.innerHTML = '<div class="wish-empty">当前预览未连接数据库。请使用带数据库的预览链接查看和发布祝福。</div>';
+      return;
+    }
+    if (wishApiEndpoint && wishApiStatus === "error") {
+      list.innerHTML = '<div class="wish-empty">祝福暂时无法读取，请稍后刷新页面。</div>';
+      return;
+    }
+    const wishes = allWishes();
+    if (!wishes.length) {
+      list.innerHTML = '<div class="wish-empty">还没有祝福，等你写下第一句。</div>';
+      return;
+    }
+    list.innerHTML = wishes
       .map((wish, index) => {
         const replies = (wish.replies || [])
           .map(
@@ -608,6 +958,10 @@
   }
 
   function addReply(wishId, payload) {
+    saveReply(wishId, payload);
+  }
+
+  async function saveReply(wishId, payload) {
     const text = String(payload.text || "").trim();
     const enteredName = String(payload.name || "").trim();
     if (!text) {
@@ -617,6 +971,31 @@
     if (!payload.anonymous && !enteredName) {
       showToast("请填写姓名，或选择匿名回复");
       return;
+    }
+
+    if (wishApiEndpoint) {
+      if (!Array.isArray(remoteWishes) || wishApiStatus !== "available") {
+        showToast("当前祝福数据库不可用，请稍后重试");
+        return;
+      }
+      try {
+        const data = await postJson(`${wishApiEndpoint}/${encodeURIComponent(wishId)}/replies`, {
+          name: enteredName,
+          text,
+          anonymous: payload.anonymous,
+        });
+        const target = remoteWishes.find((wish) => wish.id === wishId);
+        if (target) {
+          target.replies = target.replies || [];
+          target.replies.push(data.reply);
+        }
+        renderWishList();
+        showToast("回复已发布");
+        return;
+      } catch {
+        showToast("回复暂时无法发布，请稍后重试");
+        return;
+      }
     }
 
     const reply = {

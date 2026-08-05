@@ -21,15 +21,17 @@ window.WEDDING_CONFIG = {
   },
   music: {
     title: "点击开启背景音乐",
-    audioUrl: "",
+    audioUrl: "./assets/audio/a-thousand-years-lullaby.mp3",
+    volume: 0.72,
     useBuiltInAmbientWhenNoAudio: true,
   },
   blessing: {
+    apiEndpoint: "/api/wishes",
     allowAnonymousWishes: true,
     allowAnonymousReplies: true,
   },
   seatLookup: {
-    apiEndpoint: "",
+    apiEndpoint: "/api/seats",
     invitationCodeLength: 6,
     helpText: "邀请码会随电子请柬单独发送，一个邀请码只用于本次婚礼座位查询。",
   },
@@ -38,48 +40,7 @@ window.WEDDING_CONFIG = {
     { time: "11:20", title: "仪式开始", detail: "请提前入席，将手机调至静音" },
     { time: "12:20", title: "婚礼午宴", detail: "一起举杯，慢慢享用午宴" },
   ],
-  travelSpots: [
-    {
-      name: "濮阳裹凉皮",
-      category: "地方小吃",
-      description: "酸香清爽，适合婚礼前后轻松垫一口。",
-      image: "",
-      color: "#dce5ed",
-      dianpingUrl: "https://www.dianping.com/search/keyword/1090/0_%E6%BF%AE%E9%98%B3%E8%A3%B9%E5%87%89%E7%9A%AE",
-    },
-    {
-      name: "壮馍",
-      category: "濮阳风味",
-      description: "外皮酥脆、内馅扎实，是很有当地记忆的热食。",
-      image: "",
-      color: "#d8cec0",
-      dianpingUrl: "https://www.dianping.com/search/keyword/1090/0_%E6%BF%AE%E9%98%B3%E5%A3%AE%E9%A6%8D",
-    },
-    {
-      name: "羊肉汤",
-      category: "暖胃正餐",
-      description: "汤色清亮，适合到达濮阳后的第一顿。",
-      image: "",
-      color: "#ece8e0",
-      dianpingUrl: "https://www.dianping.com/search/keyword/1090/0_%E6%BF%AE%E9%98%B3%E7%BE%8A%E8%82%89%E6%B1%A4",
-    },
-    {
-      name: "中原油田宾馆周边餐饮",
-      category: "就近闲逛",
-      description: "距离婚礼场地近，方便亲友错峰用餐或小聚。",
-      image: "",
-      color: "#c9d7e5",
-      dianpingUrl: "https://www.dianping.com/search/keyword/1090/0_%E4%B8%AD%E5%8E%9F%E6%B2%B9%E7%94%B0%E5%AE%BE%E9%A6%86%20%E7%BE%8E%E9%A3%9F",
-    },
-  ],
-  photos: [
-    { title: "等待我们的照片 01", image: "./assets/hero-editorial.jpg", tone: "#dbe3eb" },
-    { title: "等待我们的照片 02", image: "./assets/hero-placeholder.jpg", tone: "#c9d7e5" },
-    { title: "胶片占位 03", image: "", tone: "#ece7df" },
-    { title: "胶片占位 04", image: "", tone: "#d2d9e2" },
-    { title: "胶片占位 05", image: "", tone: "#e4ded4" },
-    { title: "胶片占位 06", image: "", tone: "#c6d0cb" },
-  ],
+  travelSpots: [],
   assetCredits: [
     {
       label: "临时首图：Devon Divine / Unsplash",
@@ -105,10 +66,7 @@ window.WEDDING_CONFIG = {
     },
   ],
   seatingGuests: [
-    { name: "张明", invitationCode: "241006", table: "A03", seatNote: "男方亲友席" },
-    { name: "王晨", invitationCode: "110620", table: "B02", seatNote: "女方同学席" },
-    { name: "王晨", invitationCode: "882006", table: "C01", seatNote: "男方同事席" },
-    { name: "李想", invitationCode: "202610", table: "A01", seatNote: "主桌旁亲友席" },
-    { name: "沙晴", invitationCode: "061026", table: "A02", seatNote: "女方亲友席" },
+    { name: "胡阳", invitationCode: "728416", table: "A01", seatNote: "亲友席" },
+    { name: "韩旭", invitationCode: "593827", table: "A02", seatNote: "亲友席" },
   ],
 };
