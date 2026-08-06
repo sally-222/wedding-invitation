@@ -51,10 +51,13 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
     sourceTravel,
     sourceStyles,
     sourceApp,
+    sourceHtml,
     builtConfig,
     builtTravel,
     builtStyles,
     builtApp,
+    builtHtml,
+    shareCard,
     hero,
     guoliangpi,
     zhuangmo,
@@ -72,10 +75,13 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
       readFile(new URL("../public/invitation/travel-data.js", import.meta.url), "utf8"),
       readFile(new URL("../public/invitation/styles.css", import.meta.url), "utf8"),
       readFile(new URL("../public/invitation/app.js", import.meta.url), "utf8"),
+      readFile(new URL("../public/invitation/index.html", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/config.js", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/travel-data.js", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/styles.css", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/app.js", import.meta.url), "utf8"),
+      readFile(new URL("../dist/client/invitation/index.html", import.meta.url), "utf8"),
+      readFile(new URL("../dist/client/invitation/assets/share-card.jpg", import.meta.url)),
       readFile(new URL("../dist/client/invitation/assets/wedding-hero.jpg", import.meta.url)),
       readFile(new URL("../dist/client/invitation/assets/travel/guoliangpi.jpg", import.meta.url)),
       readFile(new URL("../dist/client/invitation/assets/travel/zhuangmo.jpg", import.meta.url)),
@@ -94,7 +100,11 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.equal(builtTravel, sourceTravel);
   assert.equal(builtStyles, sourceStyles);
   assert.equal(builtApp, sourceApp);
+  assert.equal(builtHtml, sourceHtml);
 
+  assert.match(sourceHtml, /<title>2026\.10\.6婚礼邀请函<\/title>/);
+  assert.match(sourceHtml, /content="李辰海&沙雷雨馨"/);
+  assert.match(sourceHtml, /property="og:image"[\s\S]*share-card\.jpg/);
   assert.match(sourceConfig, /heroImage:\s*"\.\/assets\/wedding-hero\.jpg"/);
   assert.match(sourceStyles, /--canvas:\s*#d7e3ee/);
   assert.match(sourceStyles, /--paper:\s*#f6f4ef/);
@@ -211,6 +221,10 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.equal(hero[1], 0xd8);
   assert.ok(hero.byteLength > 100_000);
   assert.ok(hero.byteLength < 1_000_000);
+  assert.equal(shareCard[0], 0xff);
+  assert.equal(shareCard[1], 0xd8);
+  assert.ok(shareCard.byteLength > 20_000);
+  assert.ok(shareCard.byteLength < 500_000);
   for (const image of [guoliangpi, zhuangmo, yangroutang]) {
     assert.equal(image[0], 0xff);
     assert.equal(image[1], 0xd8);
