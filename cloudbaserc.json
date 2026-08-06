@@ -1,0 +1,17 @@
+{
+  "version": "2.0",
+  "envId": "wedding-invitation-d8cw19676945d",
+  "functionRoot": "deploy/tencent/functions",
+  "functions": [
+    {
+      "name": "weddingApi",
+      "runtime": "Nodejs20.19",
+      "handler": "index.main",
+      "timeout": 30,
+      "installDependency": true,
+      "envVariables": {
+        "TCB_ENV_ID": "wedding-invitation-d8cw19676945d"
+      }
+    }
+  ]
+}
