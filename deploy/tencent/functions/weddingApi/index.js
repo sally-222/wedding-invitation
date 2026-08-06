@@ -1,5 +1,6 @@
 const cloudbase = require("@cloudbase/node-sdk");
 const crypto = require("crypto");
+const nodeHttp = require("http");
 
 const ENV_ID = process.env.TCB_ENV_ID || "wedding-invitation-d8cw19676945d";
 const COLLECTIONS = {
@@ -39,7 +40,10 @@ const demoGuests = [
 
 exports.main = async function main(event = {}, context = {}) {
   const request = parseRequest(event, context);
+  return handleRequest(request);
+};
 
+async function handleRequest(request) {
   if (request.method === "OPTIONS") {
     return response(null, 204);
   }
@@ -72,7 +76,40 @@ exports.main = async function main(event = {}, context = {}) {
   } catch (error) {
     return response({ error: readableError(error) }, error.statusCode || 500);
   }
-};
+}
+
+function startServer() {
+  const port = Number(process.env.PORT || 9000);
+  const server = nodeHttp.createServer(async (req, res) => {
+    try {
+      const chunks = [];
+      for await (const chunk of req) {
+        chunks.push(chunk);
+      }
+
+      const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
+      const result = await handleRequest({
+        method: String(req.method || "GET").toUpperCase(),
+        path: normalizePath(url.pathname),
+        query: Object.fromEntries(url.searchParams.entries()),
+        body: parseJson(Buffer.concat(chunks).toString("utf8")),
+      });
+
+      sendHttpResponse(res, result);
+    } catch (error) {
+      sendHttpResponse(res, response({ error: readableError(error) }, error.statusCode || 500));
+    }
+  });
+
+  server.listen(port, "0.0.0.0", () => {
+    console.log(`weddingApi listening on ${port}`);
+  });
+}
+
+function sendHttpResponse(res, result) {
+  res.writeHead(result.statusCode || 200, result.headers || {});
+  res.end(result.body || "");
+}
 
 function parseRequest(event, context) {
   const http = context.httpContext || event.requestContext?.http || {};
@@ -98,11 +135,7 @@ function parseBody(event) {
     if (!value) continue;
     if (typeof value === "object") return value;
     if (typeof value === "string") {
-      try {
-        return JSON.parse(value);
-      } catch {
-        return {};
-      }
+      return parseJson(value);
     }
   }
 
@@ -111,6 +144,15 @@ function parseBody(event) {
   }
 
   return {};
+}
+
+function parseJson(value) {
+  if (!value) return {};
+  try {
+    return JSON.parse(value);
+  } catch {
+    return {};
+  }
 }
 
 function isWishesPath(pathname) {
@@ -386,4 +428,8 @@ function publicError(message, statusCode) {
 
 function readableError(error) {
   return error && error.message ? error.message : "服务暂时不可用。";
+}
+
+if (require.main === module) {
+  startServer();
 }

@@ -27,7 +27,7 @@ window.WEDDING_CONFIG = {
     useBuiltInAmbientWhenNoAudio: true,
   },
   blessing: {
-    apiEndpoint: "/api/wishes",
+    apiEndpoint: "https://wedding-invitation-d8cw19676945d.service.tcloudbase.com/api/wishes",
     allowAnonymousWishes: true,
     allowAnonymousReplies: true,
     pageSize: 10,
@@ -35,7 +35,7 @@ window.WEDDING_CONFIG = {
     replyPageSize: 100,
   },
   seatLookup: {
-    apiEndpoint: "/api/seats",
+    apiEndpoint: "https://wedding-invitation-d8cw19676945d.service.tcloudbase.com/api/seats",
     invitationCodeLength: 6,
     helpText: "婚礼前夕，我们将发送专属邀请码，届时即可查看您的座位安排。",
   },
