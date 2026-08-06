@@ -1,8 +1,11 @@
 const cloudbase = require("@cloudbase/node-sdk");
 const crypto = require("crypto");
 const nodeHttp = require("http");
+const nodeHttps = require("https");
 
 const ENV_ID = process.env.TCB_ENV_ID || "wedding-invitation-d8cw19676945d";
+const WECHAT_APP_ID = process.env.WECHAT_APP_ID || process.env.WX_APP_ID || "";
+const WECHAT_APP_SECRET = process.env.WECHAT_APP_SECRET || process.env.WX_APP_SECRET || "";
 const COLLECTIONS = {
   blessings: "blessings",
   replies: "blessing_replies",
@@ -14,6 +17,8 @@ const db = app.database();
 const _ = db.command;
 
 let collectionsReady;
+let wechatAccessTokenCache = { value: "", expiresAt: 0 };
+let wechatJsApiTicketCache = { value: "", expiresAt: 0 };
 
 const demoGuests = [
   {
@@ -49,6 +54,10 @@ async function handleRequest(request) {
   }
 
   try {
+    if (request.method === "GET" && isWechatSignPath(request.path)) {
+      return response(await createWechatShareSignature(request.query));
+    }
+
     await ensureCollections();
 
     if (request.method === "GET" && isWishesPath(request.path)) {
@@ -161,6 +170,15 @@ function isWishesPath(pathname) {
 
 function isSeatsPath(pathname) {
   return pathname === "/api/seats" || pathname.endsWith("/api/seats") || pathname === "/seats" || pathname.endsWith("/seats");
+}
+
+function isWechatSignPath(pathname) {
+  return (
+    pathname === "/api/wechat-sign" ||
+    pathname.endsWith("/api/wechat-sign") ||
+    pathname === "/wechat-sign" ||
+    pathname.endsWith("/wechat-sign")
+  );
 }
 
 function response(data, statusCode = 200) {
@@ -376,6 +394,96 @@ async function lookupSeat(payload) {
       seatNote: guest.seatNote || "",
     },
   };
+}
+
+async function createWechatShareSignature(query) {
+  if (!WECHAT_APP_ID || !WECHAT_APP_SECRET) {
+    throw publicError("微信分享暂未配置 AppID 或 AppSecret。", 500);
+  }
+
+  const pageUrl = cleanText(query.url, 2048).split("#")[0];
+  if (!/^https?:\/\//i.test(pageUrl)) {
+    throw publicError("微信分享签名地址无效。", 400);
+  }
+
+  const jsapiTicket = await getWechatJsApiTicket();
+  const nonceStr = crypto.randomBytes(16).toString("hex");
+  const timestamp = Math.floor(Date.now() / 1000);
+  const signatureSource = `jsapi_ticket=${jsapiTicket}&noncestr=${nonceStr}&timestamp=${timestamp}&url=${pageUrl}`;
+  const signature = crypto.createHash("sha1").update(signatureSource).digest("hex");
+
+  return {
+    appId: WECHAT_APP_ID,
+    nonceStr,
+    timestamp,
+    signature,
+    url: pageUrl,
+  };
+}
+
+async function getWechatAccessToken() {
+  if (wechatAccessTokenCache.value && Date.now() < wechatAccessTokenCache.expiresAt) {
+    return wechatAccessTokenCache.value;
+  }
+
+  const data = await httpsGetJson(
+    `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${encodeURIComponent(
+      WECHAT_APP_ID,
+    )}&secret=${encodeURIComponent(WECHAT_APP_SECRET)}`,
+  );
+  if (!data.access_token) {
+    throw publicError(`微信 access_token 获取失败：${data.errmsg || data.errcode || "unknown"}`, 500);
+  }
+
+  wechatAccessTokenCache = {
+    value: data.access_token,
+    expiresAt: Date.now() + Math.max(300, Number(data.expires_in || 7200) - 300) * 1000,
+  };
+  return wechatAccessTokenCache.value;
+}
+
+async function getWechatJsApiTicket() {
+  if (wechatJsApiTicketCache.value && Date.now() < wechatJsApiTicketCache.expiresAt) {
+    return wechatJsApiTicketCache.value;
+  }
+
+  const accessToken = await getWechatAccessToken();
+  const data = await httpsGetJson(
+    `https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=${encodeURIComponent(accessToken)}&type=jsapi`,
+  );
+  if (!data.ticket) {
+    throw publicError(`微信 jsapi_ticket 获取失败：${data.errmsg || data.errcode || "unknown"}`, 500);
+  }
+
+  wechatJsApiTicketCache = {
+    value: data.ticket,
+    expiresAt: Date.now() + Math.max(300, Number(data.expires_in || 7200) - 300) * 1000,
+  };
+  return wechatJsApiTicketCache.value;
+}
+
+function httpsGetJson(url) {
+  return new Promise((resolve, reject) => {
+    const request = nodeHttps.get(url, (res) => {
+      const chunks = [];
+      res.on("data", (chunk) => chunks.push(chunk));
+      res.on("end", () => {
+        try {
+          const text = Buffer.concat(chunks).toString("utf8");
+          const data = JSON.parse(text || "{}");
+          if (res.statusCode >= 400) {
+            reject(publicError(data.errmsg || `HTTP ${res.statusCode}`, res.statusCode));
+            return;
+          }
+          resolve(data);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+    request.setTimeout(8000, () => request.destroy(new Error("wechat-request-timeout")));
+    request.on("error", reject);
+  });
 }
 
 function publicReply(reply) {

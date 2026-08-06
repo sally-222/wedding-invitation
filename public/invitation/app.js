@@ -175,6 +175,46 @@
     return query.toString() ? `${url}${separator}${query.toString()}` : url;
   }
 
+  function initWechatShare() {
+    const share = config.share || {};
+    if (!share.title || !share.imgUrl) return;
+
+    document.title = share.title;
+    if (!/MicroMessenger/i.test(window.navigator.userAgent)) return;
+    if (!window.wx || !share.signPath) return;
+
+    const pageUrl = window.location.href.split("#")[0];
+    const shareLink = share.link || pageUrl;
+    getRemoteJson(share.signPath, { url: pageUrl })
+      .then((signature) => {
+        window.wx.config({
+          debug: false,
+          appId: signature.appId,
+          timestamp: signature.timestamp,
+          nonceStr: signature.nonceStr,
+          signature: signature.signature,
+          jsApiList: ["updateAppMessageShareData", "updateTimelineShareData"],
+        });
+
+        window.wx.ready(() => {
+          window.wx.updateAppMessageShareData({
+            title: share.title,
+            desc: share.desc || "",
+            link: shareLink,
+            imgUrl: share.imgUrl,
+          });
+          window.wx.updateTimelineShareData({
+            title: share.title,
+            link: shareLink,
+            imgUrl: share.imgUrl,
+          });
+        });
+      })
+      .catch((error) => {
+        console.warn("wechat share config failed", error);
+      });
+  }
+
   function pageHeader(index, english, title, copy) {
     const formattedCopy = copy ? escapeHtml(copy).replace(/\n/g, "<br />") : "";
     return `
@@ -1439,4 +1479,5 @@
   }
 
   render();
+  initWechatShare();
 })();

@@ -105,6 +105,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceHtml, /<title>2026\.10\.6婚礼邀请函<\/title>/);
   assert.match(sourceHtml, /content="李辰海&沙雷雨馨"/);
   assert.match(sourceHtml, /property="og:image"[\s\S]*share-card\.jpg/);
+  assert.match(sourceHtml, /jweixin-1\.6\.0\.js/);
   assert.match(sourceConfig, /heroImage:\s*"\.\/assets\/wedding-hero\.jpg"/);
   assert.match(sourceStyles, /--canvas:\s*#d7e3ee/);
   assert.match(sourceStyles, /--paper:\s*#f6f4ef/);
@@ -160,7 +161,13 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceConfig, /韩旭/);
   assert.match(sourceConfig, /593827/);
   assert.match(sourceConfig, /envId:\s*"wedding-invitation-d8cw19676945d"/);
+  assert.match(sourceConfig, /title:\s*"2026\.10\.6婚礼邀请函"/);
+  assert.match(sourceConfig, /desc:\s*"李辰海&沙雷雨馨"/);
+  assert.match(sourceConfig, /signPath:\s*"wechat-sign"/);
   assert.match(sourceApp, /callFunction/);
+  assert.match(sourceApp, /initWechatShare/);
+  assert.match(sourceApp, /updateAppMessageShareData/);
+  assert.match(sourceApp, /updateTimelineShareData/);
   assert.match(sourceConfig, /pageSize:\s*10/);
   assert.match(sourceConfig, /replyPreviewSize:\s*2/);
   assert.match(sourceApp, /loadRemoteWishes/);
