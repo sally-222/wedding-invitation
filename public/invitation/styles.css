@@ -420,12 +420,112 @@ button {
 }
 
 .page {
+  position: relative;
+  isolation: isolate;
   min-height: calc(100svh - var(--bottom-nav));
   padding: 22px 20px 44px;
+  overflow: hidden;
 }
 
 .page--tinted {
   background: #f3f3f0;
+}
+
+.page > * {
+  position: relative;
+  z-index: 1;
+}
+
+.page--travel::before,
+.page--travel::after,
+.page--photos::before,
+.page--photos::after,
+.page--wishes::before,
+.page--wishes::after,
+.page--seats::before,
+.page--seats::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.page--travel::before {
+  top: 128px;
+  right: -58px;
+  bottom: 0;
+  width: 182px;
+  background: url("./assets/lace/lace-travel.webp") top center / 150px auto repeat-y;
+  opacity: 0.09;
+}
+
+.page--travel::after {
+  top: 660px;
+  bottom: 0;
+  left: -78px;
+  width: 150px;
+  background: url("./assets/lace/lace-travel.webp") top center / 136px auto repeat-y;
+  opacity: 0.045;
+  transform: scaleX(-1);
+}
+
+.page--photos::before {
+  top: 154px;
+  right: -20px;
+  left: -20px;
+  height: 92px;
+  background: url("./assets/lace/lace-photo.webp") center / 520px auto repeat-x;
+  opacity: 0.1;
+}
+
+.page--photos::after {
+  right: -20px;
+  bottom: 18px;
+  left: -20px;
+  height: 70px;
+  background: url("./assets/lace/lace-photo.webp") center / 460px auto repeat-x;
+  opacity: 0.065;
+  transform: rotate(180deg);
+}
+
+.page--wishes::before {
+  top: 152px;
+  right: -126px;
+  width: 342px;
+  aspect-ratio: 609 / 552;
+  background: url("./assets/lace/lace-wishes.webp") center / contain no-repeat;
+  opacity: 0.08;
+  transform: rotate(-8deg);
+}
+
+.page--wishes::after {
+  bottom: 68px;
+  left: -164px;
+  width: 330px;
+  aspect-ratio: 609 / 552;
+  background: url("./assets/lace/lace-wishes.webp") center / contain no-repeat;
+  opacity: 0.05;
+  transform: rotate(172deg);
+}
+
+.page--seats::before {
+  top: 218px;
+  left: 50%;
+  width: min(86%, 390px);
+  aspect-ratio: 447 / 625;
+  background: url("./assets/lace/lace-seats.webp") center / contain no-repeat;
+  opacity: 0.075;
+  transform: translateX(-50%) rotate(2deg);
+}
+
+.page--seats::after {
+  right: -72px;
+  bottom: 28px;
+  width: 196px;
+  aspect-ratio: 609 / 552;
+  background: url("./assets/lace/lace-wishes.webp") center / contain no-repeat;
+  opacity: 0.035;
+  transform: rotate(-24deg);
 }
 
 .page-head {
@@ -594,7 +694,6 @@ button {
 
 .page--album {
   background: #f0f1ef;
-  overflow: hidden;
 }
 
 .photo-album {

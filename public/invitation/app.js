@@ -258,7 +258,7 @@
 
     return `
       <section id="travel" class="view" data-view>
-        <div class="page page--tinted">
+        <div class="page page--tinted page--travel">
           ${pageHeader("02 / 05", "Local taste", "赴宴闲游", "婚礼之外，也留一点时间给濮阳。\n我们挑了几处想分享给您的濮阳味道，愿您来时欢喜，归时有念。")}
           <div class="travel-filter" aria-label="闲游分类">${filters}</div>
           <div class="travel-grid">${cards}</div>
@@ -277,7 +277,7 @@
 
     return `
       <section id="photos" class="view" data-view>
-        <div class="page page--album">
+        <div class="page page--album page--photos">
           ${pageHeader("03 / 05", "Our album", "照片墙", "有些日子值得被收藏，\n有些瞬间值得被重新翻阅。")}
           <div class="photo-album" id="photoAlbum" aria-label="${escapeHtml(album.title || "我们的婚礼相册")}">
             <div class="photo-album__book" id="photoAlbumBook">
@@ -326,7 +326,7 @@
   function renderWishes() {
     return `
       <section id="wishes" class="view" data-view>
-        <div class="page page--tinted">
+        <div class="page page--tinted page--wishes">
           ${pageHeader("04 / 05", "Guest notes", "留言祝福", "如果有一句话想对我们说，就写在这里吧。\n谢谢您来到这里，也谢谢您见证这一刻。")}
           <form class="panel form-grid" id="wishForm">
             <label class="field-label">
@@ -354,7 +354,7 @@
     const codeLength = config.seatLookup.invitationCodeLength;
     return `
       <section id="seats" class="view" data-view>
-        <div class="page page--tinted">
+        <div class="page page--tinted page--seats">
           ${pageHeader("05 / 05", "Seat finder", "座位查询", "欢迎赴宴，请在这里查看您的座位。\n婚礼前夕，我们将发送专属邀请码，届时即可查看您的座位安排。")}
           <div class="seat-stage">
             <p class="seat-stage__label">Find your table</p>
