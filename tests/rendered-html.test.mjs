@@ -58,6 +58,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
     builtApp,
     builtHtml,
     shareCard,
+    wechatVerifyFile,
     hero,
     guoliangpi,
     zhuangmo,
@@ -82,6 +83,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
       readFile(new URL("../dist/client/invitation/app.js", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/index.html", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/assets/share-card.jpg", import.meta.url)),
+      readFile(new URL("../dist/client/invitation/MP_verify_wNCDOk3cg9vK4RoU.txt", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/assets/wedding-hero.jpg", import.meta.url)),
       readFile(new URL("../dist/client/invitation/assets/travel/guoliangpi.jpg", import.meta.url)),
       readFile(new URL("../dist/client/invitation/assets/travel/zhuangmo.jpg", import.meta.url)),
@@ -101,6 +103,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.equal(builtStyles, sourceStyles);
   assert.equal(builtApp, sourceApp);
   assert.equal(builtHtml, sourceHtml);
+  assert.equal(wechatVerifyFile.trim(), "wNCDOk3cg9vK4RoU");
 
   assert.match(sourceHtml, /<title>2026\.10\.6婚礼邀请函<\/title>/);
   assert.match(sourceHtml, /content="李辰海&沙雷雨馨"/);
