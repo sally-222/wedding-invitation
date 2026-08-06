@@ -22,10 +22,10 @@ tcb login
 2. 部署后端 HTTP 云函数。
 
 ```powershell
-tcb fn deploy weddingApiHttp --dir deploy/tencent/functions/weddingApi -e wedding-invitation-d8cw19676945d --force --httpFn --path /wedding-api
+tcb fn deploy weddingApiHttp --dir deploy/tencent/functions/weddingApi -e wedding-invitation-d8cw19676945d --force --httpFn
 ```
 
-这个命令会把 `weddingApi` 暴露到 HTTP 访问路径：
+这个命令只部署函数本体。HTTP 访问服务需要在控制台手动创建一次：
 
 ```text
 /wedding-api

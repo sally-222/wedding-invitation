@@ -11,7 +11,7 @@ if errorlevel 1 exit /b 1
 
 echo.
 echo 2/4 Deploy CloudBase HTTP function...
-tcb fn deploy weddingApiHttp --dir deploy/tencent/functions/weddingApi -e %ENV_ID% --force --httpFn --path /wedding-api
+tcb fn deploy weddingApiHttp --dir deploy/tencent/functions/weddingApi -e %ENV_ID% --force --httpFn
 if errorlevel 1 exit /b 1
 
 echo.

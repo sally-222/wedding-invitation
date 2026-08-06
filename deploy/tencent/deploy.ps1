@@ -11,7 +11,7 @@ git push gitee main
 
 Write-Host ""
 Write-Host "2/4 部署 CloudBase HTTP 云函数..."
-tcb fn deploy weddingApiHttp --dir deploy/tencent/functions/weddingApi -e $envId --force --httpFn --path /wedding-api
+tcb fn deploy weddingApiHttp --dir deploy/tencent/functions/weddingApi -e $envId --force --httpFn
 
 Write-Host ""
 Write-Host "3/4 部署前端静态页面..."
