@@ -31,7 +31,7 @@ tcb fn deploy weddingApiHttp --dir deploy/tencent/functions/weddingApi -e weddin
 /wedding-api
 ```
 
-前端当前使用完整接口地址：`https://wedding-invitation-d8cw19676945d.service.tcloudbase.com/wedding-api/wishes` 和 `https://wedding-invitation-d8cw19676945d.service.tcloudbase.com/wedding-api/seats`。
+前端当前使用完整接口地址：`https://wedding-invitation-d8cw19676945d-1463852299.ap-shanghai.app.tcloudbase.com/wedding-api/wishes` 和 `https://wedding-invitation-d8cw19676945d-1463852299.ap-shanghai.app.tcloudbase.com/wedding-api/seats`。
 
 4. 部署前端静态页面。
 

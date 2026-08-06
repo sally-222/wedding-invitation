@@ -143,12 +143,12 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.doesNotMatch(sourceApp, /FRAME 06|FILM \/ 2026/);
   assert.match(sourceApp, /replyAnonymous/);
   assert.match(sourceApp, /lookupSeat/);
-  assert.match(sourceConfig, /apiEndpoint:\s*"https:\/\/wedding-invitation-d8cw19676945d\.service\.tcloudbase\.com\/wedding-api\/seats"/);
+  assert.match(sourceConfig, /apiEndpoint:\s*"https:\/\/wedding-invitation-d8cw19676945d-1463852299\.ap-shanghai\.app\.tcloudbase\.com\/wedding-api\/seats"/);
   assert.match(sourceConfig, /胡阳/);
   assert.match(sourceConfig, /728416/);
   assert.match(sourceConfig, /韩旭/);
   assert.match(sourceConfig, /593827/);
-  assert.match(sourceConfig, /apiEndpoint:\s*"https:\/\/wedding-invitation-d8cw19676945d\.service\.tcloudbase\.com\/wedding-api\/wishes"/);
+  assert.match(sourceConfig, /apiEndpoint:\s*"https:\/\/wedding-invitation-d8cw19676945d-1463852299\.ap-shanghai\.app\.tcloudbase\.com\/wedding-api\/wishes"/);
   assert.match(sourceConfig, /pageSize:\s*10/);
   assert.match(sourceConfig, /replyPreviewSize:\s*2/);
   assert.match(sourceApp, /loadRemoteWishes/);
