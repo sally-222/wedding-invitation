@@ -27,7 +27,7 @@ window.WEDDING_CONFIG = {
     useBuiltInAmbientWhenNoAudio: true,
   },
   blessing: {
-    apiEndpoint: "https://wedding-invitation-d8cw19676945d-1463852299.ap-shanghai.app.tcloudbase.com/wedding-api/wishes",
+    apiEndpoint: "",
     allowAnonymousWishes: true,
     allowAnonymousReplies: true,
     pageSize: 10,
@@ -35,9 +35,15 @@ window.WEDDING_CONFIG = {
     replyPageSize: 100,
   },
   seatLookup: {
-    apiEndpoint: "https://wedding-invitation-d8cw19676945d-1463852299.ap-shanghai.app.tcloudbase.com/wedding-api/seats",
+    apiEndpoint: "",
     invitationCodeLength: 6,
     helpText: "婚礼前夕，我们将发送专属邀请码，届时即可查看您的座位安排。",
+  },
+  cloudbaseApi: {
+    envId: "wedding-invitation-d8cw19676945d",
+    region: "ap-shanghai",
+    functionName: "weddingApiEvent",
+    anonymousLogin: true,
   },
   schedule: [
     { time: "10:00", title: "迎宾", detail: "请在签到处领取座位信息" },

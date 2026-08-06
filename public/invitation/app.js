@@ -4,9 +4,13 @@
   const storageKey = "wedding-wishes-v2";
   const seedRepliesStorageKey = "wedding-seed-replies-v1";
   const wishApiEndpoint = config.blessing?.apiEndpoint || "";
+  const cloudbaseApi = config.cloudbaseApi || {};
+  const useCloudbaseApi = Boolean(cloudbaseApi.envId && cloudbaseApi.functionName);
+  const hasRemoteApi = Boolean(wishApiEndpoint || useCloudbaseApi);
   const wishPageSize = Number(config.blessing?.pageSize || 10);
   const replyPreviewSize = Number(config.blessing?.replyPreviewSize || 2);
   const replyPageSize = Number(config.blessing?.replyPageSize || 100);
+  let cloudbaseAppPromise = null;
   let audioController = null;
   let musicAutoplayAttempted = false;
   let musicAutoResumeBound = false;
@@ -14,7 +18,7 @@
   let remoteWishes = null;
   let remoteWishPagination = { page: 1, pageSize: wishPageSize, total: 0, totalPages: 1 };
   let wishCurrentPage = 1;
-  let wishApiStatus = wishApiEndpoint ? "unknown" : "unavailable";
+  let wishApiStatus = hasRemoteApi ? "unknown" : "unavailable";
   const expandedReplies = new Set();
   const fullRepliesByWish = {};
 
@@ -55,7 +59,7 @@
 
   function allWishes() {
     if (Array.isArray(remoteWishes)) return remoteWishes;
-    if (wishApiEndpoint) return [];
+    if (hasRemoteApi) return [];
     const storedSeedReplies = getStoredSeedReplies();
     const seeds = config.blessingSeed.map((wish) => ({
       ...wish,
@@ -77,6 +81,79 @@
       throw error;
     }
     return data;
+  }
+
+  async function getCloudbaseApp() {
+    if (!useCloudbaseApi) throw new Error("cloudbase-api-disabled");
+    if (!window.cloudbase) throw new Error("cloudbase-sdk-missing");
+    if (!cloudbaseAppPromise) {
+      cloudbaseAppPromise = (async () => {
+        const cloudApp = window.cloudbase.init({
+          env: cloudbaseApi.envId,
+          region: cloudbaseApi.region || "ap-shanghai",
+        });
+        if (cloudbaseApi.anonymousLogin !== false && cloudApp.auth) {
+          const auth = cloudApp.auth();
+          const hasLoginState = typeof auth.hasLoginState === "function" ? auth.hasLoginState() : null;
+          if (!hasLoginState && typeof auth.signInAnonymously === "function") {
+            const signInResult = await auth.signInAnonymously();
+            if (signInResult?.error) throw new Error(signInResult.error.message || "cloudbase-auth-failed");
+          }
+        }
+        return cloudApp;
+      })();
+    }
+    return cloudbaseAppPromise;
+  }
+
+  function parseCloudbaseResult(result) {
+    if (!result) return {};
+    if (typeof result.body === "string") {
+      const data = JSON.parse(result.body || "{}");
+      if (Number(result.statusCode || 200) >= 400) {
+        const error = new Error(data.error || "请求暂时无法完成");
+        error.status = Number(result.statusCode || 500);
+        throw error;
+      }
+      return data;
+    }
+    if (Number(result.statusCode || 200) >= 400) {
+      const error = new Error(result.error || "请求暂时无法完成");
+      error.status = Number(result.statusCode || 500);
+      throw error;
+    }
+    return result;
+  }
+
+  async function callCloudbaseApi(method, path, options = {}) {
+    const cloudApp = await getCloudbaseApp();
+    const response = await cloudApp.callFunction({
+      name: cloudbaseApi.functionName,
+      data: {
+        method,
+        path,
+        query: options.query || {},
+        body: options.body || {},
+      },
+      parse: true,
+    });
+    return parseCloudbaseResult(response.result);
+  }
+
+  async function getRemoteJson(path, params = {}) {
+    if (useCloudbaseApi) return callCloudbaseApi("GET", path, { query: params });
+    const response = await fetch(buildApiUrl(path, params), { headers: { Accept: "application/json" } });
+    if (!response.ok) {
+      const error = new Error("request-failed");
+      error.status = response.status;
+      throw error;
+    }
+    return response.json();
+  }
+
+  async function postRemoteJson(path, payload) {
+    if (useCloudbaseApi) return callCloudbaseApi("POST", path, { body: payload });
+    return postJson(path, payload);
   }
 
   function buildApiUrl(url, params) {
@@ -880,24 +957,14 @@
   }
 
   async function loadRemoteWishes(page = wishCurrentPage) {
-    if (!wishApiEndpoint) return;
+    if (!hasRemoteApi) return;
     try {
       wishCurrentPage = Math.max(1, Number(page) || 1);
-      const response = await fetch(
-        buildApiUrl(wishApiEndpoint, {
+      const data = await getRemoteJson(wishApiEndpoint || "wishes", {
           page: wishCurrentPage,
           pageSize: wishPageSize,
           replyLimit: replyPreviewSize,
-        }),
-        { headers: { Accept: "application/json" } },
-      );
-      if (!response.ok) {
-        wishApiStatus = response.status === 404 ? "unavailable" : "error";
-        remoteWishes = null;
-        renderWishList();
-        return;
-      }
-      const data = await response.json();
+        });
       wishApiStatus = "available";
       remoteWishes = Array.isArray(data.wishes) ? data.wishes : [];
       remoteWishPagination = {
@@ -932,7 +999,7 @@
     const submitButton = form.querySelector('button[type="submit"]');
     submitButton.disabled = true;
     submitButton.textContent = "正在发布";
-    if (wishApiEndpoint) {
+    if (hasRemoteApi) {
       if (wishApiStatus === "unavailable") {
         showToast("当前预览未连接数据库，请使用带数据库的预览链接");
         submitButton.disabled = false;
@@ -940,7 +1007,7 @@
         return;
       }
       try {
-        const data = await postJson(wishApiEndpoint, {
+        const data = await postRemoteJson(wishApiEndpoint || "wishes", {
           name: enteredName,
           text,
           anonymous,
@@ -1055,21 +1122,16 @@
 
   async function loadFullReplies(wishId) {
     expandedReplies.add(wishId);
-    if (!wishApiEndpoint) {
+    if (!hasRemoteApi) {
       renderWishList();
       return;
     }
     if (!fullRepliesByWish[wishId]) {
       try {
-        const response = await fetch(
-          buildApiUrl(`${wishApiEndpoint}/${encodeURIComponent(wishId)}/replies`, {
+        const data = await getRemoteJson(`${wishApiEndpoint || "wishes"}/${encodeURIComponent(wishId)}/replies`, {
             page: 1,
             pageSize: replyPageSize,
-          }),
-          { headers: { Accept: "application/json" } },
-        );
-        if (!response.ok) throw new Error("reply-load-failed");
-        const data = await response.json();
+          });
         fullRepliesByWish[wishId] = Array.isArray(data.replies) ? data.replies : [];
         const target = remoteWishes?.find((wish) => wish.id === wishId);
         if (target) target.replyCount = Number(data.total || fullRepliesByWish[wishId].length);
@@ -1087,7 +1149,7 @@
         const nextPage = Number(button.dataset.wishPage || 1);
         if (nextPage === wishCurrentPage) return;
         wishCurrentPage = nextPage;
-        if (wishApiEndpoint) {
+        if (hasRemoteApi) {
           wishApiStatus = "unknown";
           renderWishList();
           loadRemoteWishes(nextPage);
@@ -1125,24 +1187,24 @@
 
   function renderWishList() {
     const list = document.querySelector("#wishList");
-    if (wishApiEndpoint && wishApiStatus === "unknown") {
+    if (hasRemoteApi && wishApiStatus === "unknown") {
       list.innerHTML = '<div class="wish-empty">正在读取祝福...</div>';
       return;
     }
-    if (wishApiEndpoint && wishApiStatus === "unavailable") {
+    if (hasRemoteApi && wishApiStatus === "unavailable") {
       list.innerHTML = '<div class="wish-empty">当前预览未连接数据库。请使用带数据库的预览链接查看和发布祝福。</div>';
       return;
     }
-    if (wishApiEndpoint && wishApiStatus === "error") {
+    if (hasRemoteApi && wishApiStatus === "error") {
       list.innerHTML = '<div class="wish-empty">祝福暂时无法读取，请稍后刷新页面。</div>';
       return;
     }
     const wishes = allWishes();
-    const totalWishes = wishApiEndpoint ? remoteWishPagination.total : wishes.length;
-    const totalPages = wishApiEndpoint ? remoteWishPagination.totalPages : Math.max(1, Math.ceil(wishes.length / wishPageSize));
+    const totalWishes = hasRemoteApi ? remoteWishPagination.total : wishes.length;
+    const totalPages = hasRemoteApi ? remoteWishPagination.totalPages : Math.max(1, Math.ceil(wishes.length / wishPageSize));
     wishCurrentPage = Math.min(Math.max(1, wishCurrentPage), totalPages);
     const pageOffset = (wishCurrentPage - 1) * wishPageSize;
-    const pageWishes = wishApiEndpoint ? wishes : wishes.slice(pageOffset, pageOffset + wishPageSize);
+    const pageWishes = hasRemoteApi ? wishes : wishes.slice(pageOffset, pageOffset + wishPageSize);
     if (!totalWishes) {
       list.innerHTML = '<div class="wish-empty">还没有祝福，等你写下第一句。</div>';
       return;
@@ -1199,13 +1261,13 @@
       return;
     }
 
-    if (wishApiEndpoint) {
+    if (hasRemoteApi) {
       if (!Array.isArray(remoteWishes) || wishApiStatus !== "available") {
         showToast("当前祝福数据库不可用，请稍后重试");
         return;
       }
       try {
-        const data = await postJson(`${wishApiEndpoint}/${encodeURIComponent(wishId)}/replies`, {
+        const data = await postRemoteJson(`${wishApiEndpoint || "wishes"}/${encodeURIComponent(wishId)}/replies`, {
           name: enteredName,
           text,
           anonymous: payload.anonymous,
@@ -1269,14 +1331,8 @@
   }
 
   async function lookupSeat(name, invitationCode) {
-    if (config.seatLookup.apiEndpoint) {
-      const response = await fetch(config.seatLookup.apiEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, invitationCode }),
-      });
-      if (!response.ok) throw new Error("seat-lookup-failed");
-      return response.json();
+    if (config.seatLookup.apiEndpoint || useCloudbaseApi) {
+      return postRemoteJson(config.seatLookup.apiEndpoint || "seats", { name, invitationCode });
     }
 
     const guest = config.seatingGuests.find(

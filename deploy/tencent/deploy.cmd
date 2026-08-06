@@ -10,8 +10,8 @@ git push gitee main
 if errorlevel 1 exit /b 1
 
 echo.
-echo 2/4 Deploy CloudBase HTTP function...
-tcb fn deploy weddingApiHttp --dir deploy/tencent/functions/weddingApi -e %ENV_ID% --force --httpFn
+echo 2/4 Deploy CloudBase event function...
+tcb fn deploy weddingApiEvent --dir deploy/tencent/functions/weddingApi -e %ENV_ID% --force
 if errorlevel 1 exit /b 1
 
 echo.

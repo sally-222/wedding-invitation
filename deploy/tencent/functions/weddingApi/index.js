@@ -120,7 +120,7 @@ function parseRequest(event, context) {
   return {
     method,
     path: normalizePath(url.pathname),
-    query: Object.fromEntries(url.searchParams.entries()),
+    query: { ...Object.fromEntries(url.searchParams.entries()), ...(event.query || {}) },
     body: parseBody(event),
   };
 }

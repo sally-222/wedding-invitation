@@ -10,8 +10,8 @@ Write-Host "1/4 推送代码到 Gitee..."
 git push gitee main
 
 Write-Host ""
-Write-Host "2/4 部署 CloudBase HTTP 云函数..."
-tcb fn deploy weddingApiHttp --dir deploy/tencent/functions/weddingApi -e $envId --force --httpFn
+Write-Host "2/4 部署 CloudBase 普通云函数..."
+tcb fn deploy weddingApiEvent --dir deploy/tencent/functions/weddingApi -e $envId --force
 
 Write-Host ""
 Write-Host "3/4 部署前端静态页面..."

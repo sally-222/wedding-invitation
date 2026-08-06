@@ -5,55 +5,72 @@
 ## 当前项目对应关系
 
 - 前端静态页面：`public/invitation`
-- 后端云函数：`deploy/tencent/functions/weddingApi`
-- 腾讯云函数名：`weddingApiHttp`
+- 后端普通云函数代码：`deploy/tencent/functions/weddingApi`
+- 腾讯云函数名：`weddingApiEvent`
 - 数据库集合：`blessings`、`blessing_replies`、`seating_guests`
 - CloudBase 环境 ID：`wedding-invitation-d8cw19676945d`
+
+## 当前方案
+
+前端通过 CloudBase JS SDK 直接调用普通云函数 `weddingApiEvent`。
+
+这个方案不使用 HTTP 访问服务，不需要配置 `/wedding-api` 路由，也不会再遇到 HTTP 网关证书或 `INVALID_PATH` 的问题。
 
 ## 第一次部署
 
 1. 安装并登录 CloudBase CLI。
 
 ```powershell
-npm install -g @cloudbase/cli
-tcb login
+npm.cmd install -g @cloudbase/cli
+tcb.cmd login
 ```
 
-2. 部署后端 HTTP 云函数。
+2. 部署后端普通云函数。
 
 ```powershell
-tcb fn deploy weddingApiHttp --dir deploy/tencent/functions/weddingApi -e wedding-invitation-d8cw19676945d --force --httpFn
+tcb.cmd fn deploy weddingApiEvent --dir deploy/tencent/functions/weddingApi -e wedding-invitation-d8cw19676945d --force
 ```
 
-这个命令只部署函数本体。HTTP 访问服务需要在控制台手动创建一次：
-
-```text
-/wedding-api
-```
-
-前端当前使用完整接口地址：`https://wedding-invitation-d8cw19676945d-1463852299.ap-shanghai.app.tcloudbase.com/wedding-api/wishes` 和 `https://wedding-invitation-d8cw19676945d-1463852299.ap-shanghai.app.tcloudbase.com/wedding-api/seats`。
-
-4. 部署前端静态页面。
+3. 部署前端静态页面。
 
 ```powershell
-tcb hosting deploy public/invitation -e wedding-invitation-d8cw19676945d
+tcb.cmd hosting deploy public/invitation -e wedding-invitation-d8cw19676945d --concurrency 5 --retry-count 3
 ```
 
-5. 查看静态网站访问地址。
+4. 查看静态网站访问地址。
 
 ```powershell
-tcb hosting detail -e wedding-invitation-d8cw19676945d
+tcb.cmd hosting detail -e wedding-invitation-d8cw19676945d
 ```
 
 ## 一键部署
 
-也可以在项目根目录运行：
+在项目根目录运行：
 
 ```powershell
 .\deploy\tencent\deploy.cmd
 ```
 
 脚本会依次推送 Gitee、部署云函数、部署静态页面、显示静态网站访问地址。
+
+## 控制台必须开启
+
+进入 CloudBase 控制台，选择环境 `wedding-invitation-d8cw19676945d`：
+
+1. 身份认证：开启「匿名登录」
+2. 安全配置 / 安全来源：添加静态网站域名
+
+静态网站域名是：
+
+```text
+wedding-invitation-d8cw19676945d-1463852299.tcloudbaseapp.com
+```
+
+如果控制台要求带协议，可以填：
+
+```text
+https://wedding-invitation-d8cw19676945d-1463852299.tcloudbaseapp.com
+```
 
 ## 数据如何删除
 
