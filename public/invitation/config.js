@@ -34,7 +34,7 @@ window.WEDDING_CONFIG = {
   seatLookup: {
     apiEndpoint: "/api/seats",
     invitationCodeLength: 6,
-    helpText: "邀请码会随电子请柬单独发送，一个邀请码只用于本次婚礼座位查询。",
+    helpText: "婚礼前夕，我们将发送专属邀请码，届时即可查看您的座位安排。",
   },
   schedule: [
     { time: "10:00", title: "迎宾", detail: "请在签到处领取座位信息" },

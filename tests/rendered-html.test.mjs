@@ -8,11 +8,12 @@ test("redirects the root route to the wedding invitation", async () => {
 });
 
 test("ships the ordered, manually paged two-page wedding album", async () => {
-  const [sourceData, sourceApp, sourceStyles, builtData, builtApp, builtStyles, cover, firstPage, lastPage] =
+  const [sourceData, sourceApp, sourceStyles, sourceConfig, builtData, builtApp, builtStyles, cover, firstPage, lastPage] =
     await Promise.all([
       readFile(new URL("../public/invitation/photo-data.js", import.meta.url), "utf8"),
       readFile(new URL("../public/invitation/app.js", import.meta.url), "utf8"),
       readFile(new URL("../public/invitation/styles.css", import.meta.url), "utf8"),
+      readFile(new URL("../public/invitation/config.js", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/photo-data.js", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/app.js", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/styles.css", import.meta.url), "utf8"),
@@ -166,7 +167,10 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceApp, /被收藏，\\n有些瞬间/);
   assert.match(sourceApp, /如果有一句话想对我们说/);
   assert.match(sourceApp, /这里吧。\\n谢谢您/);
-  assert.match(sourceApp, /婚礼前夕，我们将发送专属邀请码/);
+  assert.doesNotMatch(sourceApp, /婚礼前夕，我们将发送专属邀请码/);
+  assert.match(sourceConfig, /婚礼前夕，我们将发送专属邀请码/);
+  assert.doesNotMatch(sourceConfig, /邀请码会随电子请柬/);
+  assert.doesNotMatch(sourceApp, /演示查询/);
   assert.doesNotMatch(sourceApp, /欢迎赴宴，请在这里查看您的座位/);
   assert.match(sourceApp, /data-travel-filter/);
   assert.match(sourceStyles, /\.travel-card\[hidden\]/);

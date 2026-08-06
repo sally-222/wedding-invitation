@@ -73,7 +73,7 @@
   }
 
   function pageHeader(index, english, title, copy) {
-    const formattedCopy = escapeHtml(copy).replace(/\n/g, "<br />");
+    const formattedCopy = copy ? escapeHtml(copy).replace(/\n/g, "<br />") : "";
     return `
       <header class="page-head">
         <div class="page-head__topline">
@@ -81,7 +81,7 @@
           <span class="page-head__index">${escapeHtml(english)}</span>
         </div>
         <h1 class="page-head__title">${escapeHtml(title)}</h1>
-        <p class="page-head__copy">${formattedCopy}</p>
+        ${formattedCopy ? `<p class="page-head__copy">${formattedCopy}</p>` : ""}
       </header>
     `;
   }
@@ -355,7 +355,7 @@
     return `
       <section id="seats" class="view" data-view>
         <div class="page page--tinted page--seats">
-          ${pageHeader("05 / 05", "Seat finder", "座位查询", "婚礼前夕，我们将发送专属邀请码，届时即可查看您的座位安排。")}
+          ${pageHeader("05 / 05", "Seat finder", "座位查询", "")}
           <div class="seat-stage">
             <p class="seat-stage__label">Find your table</p>
             <h2 class="seat-stage__title">欢迎赴宴，<br />请在这里找到<br />属于您的席位。</h2>
@@ -371,7 +371,6 @@
             </label>
             <button class="button button--wide" type="submit">查看我的席位</button>
             <p class="helper-text">${escapeHtml(config.seatLookup.helpText)}</p>
-            <p class="helper-text">演示查询：胡阳＋728416，或韩旭＋593827。</p>
             <button class="seat-help" id="seatHelpButton" type="button">没有找到邀请码？联系新人</button>
           </form>
           <div id="seatResult" aria-live="polite"></div>
