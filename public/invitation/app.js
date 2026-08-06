@@ -19,6 +19,7 @@
   let remoteWishPagination = { page: 1, pageSize: wishPageSize, total: 0, totalPages: 1 };
   let wishCurrentPage = 1;
   let wishApiStatus = hasRemoteApi ? "unknown" : "unavailable";
+  let remoteApiError = "";
   const expandedReplies = new Set();
   const fullRepliesByWish = {};
 
@@ -984,8 +985,10 @@
       };
       wishCurrentPage = remoteWishPagination.page;
       renderWishList();
-    } catch {
+    } catch (error) {
       wishApiStatus = "unavailable";
+      remoteApiError = error?.message || String(error || "unknown-error");
+      console.error("Wedding remote API unavailable:", error);
       remoteWishes = null;
       renderWishList();
     }
@@ -1201,7 +1204,7 @@
       return;
     }
     if (hasRemoteApi && wishApiStatus === "unavailable") {
-      list.innerHTML = '<div class="wish-empty">当前预览未连接数据库。请使用带数据库的预览链接查看和发布祝福。</div>';
+      list.innerHTML = `<div class="wish-empty">数据库连接失败：${escapeHtml(remoteApiError || "未知错误")}<br />请确认 CloudBase 匿名登录、安全来源和云函数均已部署。</div>`;
       return;
     }
     if (hasRemoteApi && wishApiStatus === "error") {
