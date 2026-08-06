@@ -106,10 +106,9 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceStyles, /\.cover__title\s*\{[\s\S]*position:\s*absolute/);
   assert.match(sourceStyles, /\.cover__image-caption\s*\{[\s\S]*"Songti SC"/);
   assert.doesNotMatch(sourceStyles, /\.cover__image-caption\s*\{[\s\S]*STXingkai/);
-  assert.match(sourceStyles, /assets\/lace\/lace-travel\.webp/);
-  assert.match(sourceStyles, /assets\/lace\/lace-photo\.webp/);
-  assert.match(sourceStyles, /assets\/lace\/lace-wishes\.webp/);
-  assert.match(sourceStyles, /assets\/lace\/lace-seats\.webp/);
+  assert.match(sourceStyles, /assets\/lace\/lace-repeat\.webp/);
+  assert.match(sourceStyles, /background:\s*url\("\.\/assets\/lace\/lace-repeat\.webp"\) center top \/ 100% auto repeat-y/);
+  assert.doesNotMatch(sourceStyles, /assets\/lace\/lace-(?:travel|photo|wishes|seats)\.webp/);
   assert.match(sourceApp, /page--travel/);
   assert.match(sourceApp, /page--photos/);
   assert.match(sourceApp, /page--wishes/);

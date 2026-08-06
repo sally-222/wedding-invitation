@@ -452,80 +452,25 @@ button {
 
 .page--travel::before {
   inset: 0;
-  background:
-    url("./assets/lace/lace-photo.webp") center 160px / 620px auto repeat-x,
-    url("./assets/lace/lace-travel.webp") right -64px top 300px / 214px auto repeat-y,
-    url("./assets/lace/lace-wishes.webp") left -138px top 820px / 356px auto no-repeat;
-  opacity: 0.105;
+  background: url("./assets/lace/lace-repeat.webp") center top / 100% auto repeat-y;
+  opacity: 0.34;
   mix-blend-mode: multiply;
 }
 
-.page--travel::after {
-  inset: 0;
-  background:
-    url("./assets/lace/lace-seats.webp") right -112px top 1160px / 330px auto no-repeat,
-    url("./assets/lace/lace-travel.webp") left -88px top 1660px / 188px auto repeat-y,
-    url("./assets/lace/lace-photo.webp") center bottom 72px / 560px auto repeat-x;
-  opacity: 0.06;
-  mix-blend-mode: multiply;
-}
-
-.page--photos::before {
-  inset: 0;
-  background:
-    url("./assets/lace/lace-photo.webp") center 154px / 640px auto repeat-x,
-    url("./assets/lace/lace-travel.webp") right -76px top 276px / 232px auto no-repeat,
-    url("./assets/lace/lace-wishes.webp") left -126px bottom 34px / 318px auto no-repeat;
-  opacity: 0.115;
-  mix-blend-mode: multiply;
-}
-
-.page--photos::after {
-  inset: 0;
-  background:
-    url("./assets/lace/lace-seats.webp") center 266px / 344px auto no-repeat,
-    url("./assets/lace/lace-photo.webp") center bottom 18px / 560px auto repeat-x;
-  opacity: 0.065;
-  mix-blend-mode: multiply;
-}
-
-.page--wishes::before {
-  inset: 0;
-  background:
-    url("./assets/lace/lace-photo.webp") center 158px / 590px auto repeat-x,
-    url("./assets/lace/lace-wishes.webp") right -118px top 310px / 370px auto no-repeat,
-    url("./assets/lace/lace-travel.webp") left -92px top 780px / 202px auto repeat-y;
-  opacity: 0.1;
-  mix-blend-mode: multiply;
-}
-
-.page--wishes::after {
-  inset: 0;
-  background:
-    url("./assets/lace/lace-seats.webp") center 690px / 354px auto no-repeat,
-    url("./assets/lace/lace-wishes.webp") left -152px bottom 118px / 344px auto no-repeat,
-    url("./assets/lace/lace-photo.webp") center bottom 28px / 540px auto repeat-x;
-  opacity: 0.055;
-  mix-blend-mode: multiply;
-}
-
+.page--photos::before,
+.page--wishes::before,
 .page--seats::before {
   inset: 0;
-  background:
-    url("./assets/lace/lace-photo.webp") center 158px / 610px auto repeat-x,
-    url("./assets/lace/lace-travel.webp") left -70px top 330px / 230px auto no-repeat,
-    url("./assets/lace/lace-wishes.webp") right -142px bottom 16px / 356px auto no-repeat;
-  opacity: 0.105;
+  background: url("./assets/lace/lace-repeat.webp") center top / 100% auto repeat-y;
+  opacity: 0.34;
   mix-blend-mode: multiply;
 }
 
+.page--travel::after,
+.page--photos::after,
+.page--wishes::after,
 .page--seats::after {
-  inset: 0;
-  background:
-    url("./assets/lace/lace-seats.webp") center 252px / 390px auto no-repeat,
-    url("./assets/lace/lace-photo.webp") center bottom 22px / 550px auto repeat-x;
-  opacity: 0.07;
-  mix-blend-mode: multiply;
+  display: none;
 }
 
 .page-head {
