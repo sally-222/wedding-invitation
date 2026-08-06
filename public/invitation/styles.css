@@ -80,7 +80,7 @@ button {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: 18px 18px 0;
+  padding: 18px 18px 18px;
   background: var(--paper);
 }
 
@@ -251,15 +251,16 @@ button {
 .home-details::before {
   content: "";
   position: absolute;
-  top: -54px;
+  top: -88px;
   right: 0;
   left: 0;
   z-index: 0;
-  height: 72px;
+  height: 112px;
   background: linear-gradient(
     to bottom,
     rgba(246, 244, 239, 0),
-    rgba(246, 244, 239, 0.88) 52%,
+    rgba(246, 244, 239, 0.5) 35%,
+    rgba(246, 244, 239, 0.88) 68%,
     var(--paper-deep)
   );
   pointer-events: none;
