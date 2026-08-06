@@ -7,7 +7,7 @@ test("redirects the root route to the wedding invitation", async () => {
   assert.match(page, /redirect\("\/invitation\/index\.html"\)/);
 });
 
-test("ships the ordered, manually paged wedding album", async () => {
+test("ships the ordered, manually paged two-page wedding album", async () => {
   const [sourceData, sourceApp, sourceStyles, builtData, builtApp, builtStyles, cover, firstPage, lastPage] =
     await Promise.all([
       readFile(new URL("../public/invitation/photo-data.js", import.meta.url), "utf8"),
@@ -28,9 +28,14 @@ test("ships the ordered, manually paged wedding album", async () => {
   assert.match(sourceData, /01\.jpg[\s\S]*02\.jpg[\s\S]*12\.jpg/);
   assert.match(sourceApp, /WEDDING_PHOTO_ALBUM/);
   assert.match(sourceApp, /pointerdown/);
-  assert.match(sourceApp, /turnPage/);
-  assert.match(sourceStyles, /aspect-ratio:\s*1280\s*\/\s*1808/);
-  assert.match(sourceStyles, /@keyframes album-turn-next/);
+  assert.match(sourceApp, /turnSpread/);
+  assert.match(sourceApp, /photoAlbumLeftPage/);
+  assert.match(sourceApp, /photoAlbumRightPage/);
+  assert.match(sourceApp, /currentSpread = nextSpread;\s*showSpread\(currentSpread\);/);
+  assert.doesNotMatch(sourceApp, /photo-album__controls|photoAlbumProgress|id="photoAlbumPrevious"/);
+  assert.match(sourceStyles, /aspect-ratio:\s*2560\s*\/\s*1808/);
+  assert.match(sourceStyles, /width:\s*112%/);
+  assert.match(sourceStyles, /@keyframes album-spread-turn-next/);
   for (const image of [cover, firstPage, lastPage]) {
     assert.equal(image[0], 0xff);
     assert.equal(image[1], 0xd8);
@@ -99,11 +104,15 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceStyles, /aspect-ratio:\s*2\s*\/\s*3/);
   assert.match(sourceStyles, /object-fit:\s*contain/);
   assert.match(sourceStyles, /\.cover__title\s*\{[\s\S]*position:\s*absolute/);
+  assert.match(sourceStyles, /\.cover__image-caption\s*\{[\s\S]*"Songti SC"/);
+  assert.doesNotMatch(sourceStyles, /\.cover__image-caption\s*\{[\s\S]*STXingkai/);
   assert.doesNotMatch(sourceStyles, /assets\/lace-|\.lace-accent/);
   assert.doesNotMatch(sourceApp, /lace-accent/);
   assert.match(sourceApp, /couple\.invitationLine/);
+  assert.match(sourceApp, /couple\.lunarDate/);
   assert.doesNotMatch(sourceApp, /mote&sally|cover__closing/);
   assert.match(sourceConfig, /invitationLine:\s*"诚邀您见证我们的婚礼"/);
+  assert.match(sourceConfig, /lunarDate:\s*"农历八月廿六"/);
   assert.match(sourceConfig, /groomPhone:\s*"13164039297"/);
   assert.match(sourceConfig, /bridePhone:\s*"16639311246"/);
   assert.match(sourceConfig, /audioUrl:\s*"\.\/assets\/audio\/a-thousand-years-lullaby\.mp3"/);
@@ -143,6 +152,15 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(seatsMigration, /CREATE TABLE `seating_guests`/);
   assert.match(seatsMigration, /CREATE INDEX `seating_guests_normalized_name_idx`/);
   assert.match(sourceApp, /WEDDING_TRAVEL_DATA/);
+  assert.match(sourceApp, /replace\(\/\\n\/g, "<br \/>"\)/);
+  assert.match(sourceApp, /我们挑了几处想分享给您的濮阳味道/);
+  assert.match(sourceApp, /濮阳。\\n我们挑了几处/);
+  assert.match(sourceApp, /有些日子值得被收藏/);
+  assert.match(sourceApp, /被收藏，\\n有些瞬间/);
+  assert.match(sourceApp, /如果有一句话想对我们说/);
+  assert.match(sourceApp, /这里吧。\\n谢谢您/);
+  assert.match(sourceApp, /婚礼前夕，我们将发送专属邀请码/);
+  assert.match(sourceApp, /您的座位。\\n婚礼前夕/);
   assert.match(sourceApp, /data-travel-filter/);
   assert.match(sourceStyles, /\.travel-card\[hidden\]/);
   assert.match(sourceTravel, /categories:\s*\["地方小吃", "濮阳风味", "暖胃正餐"\]/);

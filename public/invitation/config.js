@@ -3,6 +3,7 @@ window.WEDDING_CONFIG = {
     groom: "李辰海",
     bride: "沙雷雨馨",
     date: "2026.10.6",
+    lunarDate: "农历八月廿六",
     dateISO: "2026-10-06T11:20:00+08:00",
     venue: "中原油田宾馆",
     address: "河南省濮阳市华龙区中原油田宾馆",

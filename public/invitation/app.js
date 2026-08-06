@@ -73,6 +73,7 @@
   }
 
   function pageHeader(index, english, title, copy) {
+    const formattedCopy = escapeHtml(copy).replace(/\n/g, "<br />");
     return `
       <header class="page-head">
         <div class="page-head__topline">
@@ -80,7 +81,7 @@
           <span class="page-head__index">${escapeHtml(english)}</span>
         </div>
         <h1 class="page-head__title">${escapeHtml(title)}</h1>
-        <p class="page-head__copy">${escapeHtml(copy)}</p>
+        <p class="page-head__copy">${formattedCopy}</p>
       </header>
     `;
   }
@@ -176,7 +177,7 @@
           <div class="event-meta">
             <div class="event-meta__row">
               <span class="meta-label">Date</span>
-              <p class="meta-value">${escapeHtml(couple.date)} · 星期二</p>
+              <p class="meta-value">${escapeHtml(couple.date)} · 星期二 · ${escapeHtml(couple.lunarDate)}</p>
             </div>
             <div class="event-meta__row">
               <span class="meta-label">Venue</span>
@@ -258,7 +259,7 @@
     return `
       <section id="travel" class="view" data-view>
         <div class="page page--tinted">
-          ${pageHeader("02 / 05", "Local taste", "赴宴闲游", "婚礼之外，也留一点时间给濮阳。点击一处风味，打开大众点评查看。")}
+          ${pageHeader("02 / 05", "Local taste", "赴宴闲游", "婚礼之外，也留一点时间给濮阳。\n我们挑了几处想分享给您的濮阳味道，愿您来时欢喜，归时有念。")}
           <div class="travel-filter" aria-label="闲游分类">${filters}</div>
           <div class="travel-grid">${cards}</div>
           <p class="travel-empty" id="travelEmpty" hidden>这个分类暂时还没有内容。</p>
@@ -269,48 +270,52 @@
 
   function renderPhotos() {
     const album = window.WEDDING_PHOTO_ALBUM || {};
-    const pages = [album.cover, ...(Array.isArray(album.pages) ? album.pages : [])].filter(
-      (page) => page && page.src,
-    );
-    const cover = pages[0] || { src: "", alt: "婚礼相册" };
-    const followingPage = pages[1] || cover;
-    const innerPageCount = Math.max(0, pages.length - 1);
+    const cover = album.cover || { src: "", alt: "婚礼相册" };
+    const pages = Array.isArray(album.pages) ? album.pages.filter((page) => page && page.src) : [];
+    const leftPage = pages[0] || { src: "", alt: "婚礼相册第 1 页" };
+    const rightPage = pages[1] || { src: "", alt: "婚礼相册第 2 页" };
 
     return `
       <section id="photos" class="view" data-view>
         <div class="page page--album">
-          ${pageHeader("03 / 05", "Our album", "照片墙", "从封面开始，按原有编排依次收录我们的故事。")}
+          ${pageHeader("03 / 05", "Our album", "照片墙", "有些日子值得被收藏，\n有些瞬间值得被重新翻阅。")}
           <div class="photo-album" id="photoAlbum" aria-label="${escapeHtml(album.title || "我们的婚礼相册")}">
             <div class="photo-album__book" id="photoAlbumBook">
-              <span class="photo-album__spine" aria-hidden="true"></span>
-              <span class="photo-album__page-edges" aria-hidden="true"></span>
-              <div class="photo-album__stage" id="photoAlbumStage">
-                <div class="album-page album-page--under" aria-hidden="true">
-                  <img id="photoAlbumUnderImage" src="${escapeHtml(followingPage.src)}" alt="" draggable="false" />
-                </div>
-                <div class="album-page album-page--active is-cover" id="photoAlbumPage" role="button" tabindex="0" aria-label="放大查看相册封面">
-                  <img id="photoAlbumImage" src="${escapeHtml(cover.src)}" alt="${escapeHtml(cover.alt)}" draggable="false" />
-                  <span class="album-page__fold" aria-hidden="true"></span>
-                </div>
-                <button class="album-turn-zone album-turn-zone--previous" id="photoAlbumPreviousEdge" type="button" aria-label="上一页" disabled></button>
-                <button class="album-turn-zone album-turn-zone--next" id="photoAlbumNextEdge" type="button" aria-label="下一页"></button>
+              <div class="photo-album__cover" id="photoAlbumCover" role="button" tabindex="0" aria-label="打开婚礼相册">
+                <span class="photo-album__cover-spine" aria-hidden="true"></span>
+                <img src="${escapeHtml(cover.src)}" alt="${escapeHtml(cover.alt)}" draggable="false" />
+                <span class="photo-album__cover-sheen" aria-hidden="true"></span>
               </div>
-            </div>
-            <div class="photo-album__controls">
-              <button class="photo-album__nav" id="photoAlbumPrevious" type="button" aria-label="上一页" title="上一页" disabled>
-                <span aria-hidden="true">←</span>
-              </button>
-              <div class="photo-album__counter" id="photoAlbumCounter" aria-live="polite">
-                <span id="photoAlbumCurrent">封面</span>
-                <span class="photo-album__counter-rule" aria-hidden="true"></span>
-                <span>${escapeHtml(innerPageCount)}</span>
+              <div class="photo-album__spread" id="photoAlbumSpread" aria-hidden="true">
+                <span class="photo-album__spread-edges" aria-hidden="true"></span>
+                <span class="photo-album__spread-spine" aria-hidden="true"></span>
+                <div class="album-spread album-spread--under" aria-hidden="true">
+                  <div class="album-spread__page album-spread__page--left">
+                    <img id="photoAlbumUnderLeft" src="${escapeHtml(leftPage.src)}" alt="" draggable="false" />
+                  </div>
+                  <div class="album-spread__page album-spread__page--right">
+                    <img id="photoAlbumUnderRight" src="${escapeHtml(rightPage.src)}" alt="" draggable="false" />
+                  </div>
+                </div>
+                <div class="album-spread album-spread--current">
+                  <button class="album-spread__page album-spread__page--left" id="photoAlbumLeftPage" type="button" aria-label="放大查看相册第 1 页" tabindex="-1">
+                    <img id="photoAlbumLeftImage" src="${escapeHtml(leftPage.src)}" alt="${escapeHtml(leftPage.alt)}" draggable="false" />
+                  </button>
+                  <button class="album-spread__page album-spread__page--right" id="photoAlbumRightPage" type="button" aria-label="放大查看相册第 2 页" tabindex="-1">
+                    <img id="photoAlbumRightImage" src="${escapeHtml(rightPage.src)}" alt="${escapeHtml(rightPage.alt)}" draggable="false" />
+                  </button>
+                </div>
+                <div class="album-turning-sheet" id="photoAlbumTurningSheet" hidden aria-hidden="true">
+                  <div class="album-turning-sheet__face album-turning-sheet__face--front">
+                    <img id="photoAlbumTurningFront" src="" alt="" draggable="false" />
+                  </div>
+                  <div class="album-turning-sheet__face album-turning-sheet__face--back">
+                    <img id="photoAlbumTurningBack" src="" alt="" draggable="false" />
+                  </div>
+                </div>
+                <button class="album-turn-zone album-turn-zone--previous" id="photoAlbumPreviousEdge" type="button" aria-label="上一页" tabindex="-1" disabled></button>
+                <button class="album-turn-zone album-turn-zone--next" id="photoAlbumNextEdge" type="button" aria-label="下一页" tabindex="-1"></button>
               </div>
-              <button class="photo-album__nav" id="photoAlbumNext" type="button" aria-label="下一页" title="下一页">
-                <span aria-hidden="true">→</span>
-              </button>
-            </div>
-            <div class="photo-album__progress" role="progressbar" aria-label="相册阅读进度" aria-valuemin="1" aria-valuemax="${escapeHtml(pages.length)}" aria-valuenow="1">
-              <span id="photoAlbumProgress" style="width:${pages.length ? 100 / pages.length : 100}%"></span>
             </div>
           </div>
         </div>
@@ -322,7 +327,7 @@
     return `
       <section id="wishes" class="view" data-view>
         <div class="page page--tinted">
-          ${pageHeader("04 / 05", "Guest notes", "留言祝福", "写下几句话，可以署名，也可以匿名。回复同样可以选择署名或匿名，所有内容均不显示头像。")}
+          ${pageHeader("04 / 05", "Guest notes", "留言祝福", "如果有一句话想对我们说，就写在这里吧。\n谢谢您来到这里，也谢谢您见证这一刻。")}
           <form class="panel form-grid" id="wishForm">
             <label class="field-label">
               Name
@@ -350,7 +355,7 @@
     return `
       <section id="seats" class="view" data-view>
         <div class="page page--tinted">
-          ${pageHeader("05 / 05", "Seat finder", "座位查询", "输入宾客姓名和电子请柬中的专属邀请码，即可查看席位。无需填写手机号。")}
+          ${pageHeader("05 / 05", "Seat finder", "座位查询", "欢迎赴宴，请在这里查看您的座位。\n婚礼前夕，我们将发送专属邀请码，届时即可查看您的座位安排。")}
           <div class="seat-stage">
             <p class="seat-stage__label">Find your table</p>
             <h2 class="seat-stage__title">欢迎赴宴，<br />请在这里找到<br />属于您的席位。</h2>
@@ -638,25 +643,26 @@
 
   function bindPhotos() {
     const album = window.WEDDING_PHOTO_ALBUM || {};
-    const pages = [album.cover, ...(Array.isArray(album.pages) ? album.pages : [])].filter(
-      (page) => page && page.src,
-    );
+    const pages = Array.isArray(album.pages) ? album.pages.filter((page) => page && page.src) : [];
     const book = document.querySelector("#photoAlbumBook");
-    const stage = document.querySelector("#photoAlbumStage");
-    const activePage = document.querySelector("#photoAlbumPage");
-    const activeImage = document.querySelector("#photoAlbumImage");
-    const underImage = document.querySelector("#photoAlbumUnderImage");
-    const previousButton = document.querySelector("#photoAlbumPrevious");
-    const nextButton = document.querySelector("#photoAlbumNext");
+    const cover = document.querySelector("#photoAlbumCover");
+    const spread = document.querySelector("#photoAlbumSpread");
+    const leftPage = document.querySelector("#photoAlbumLeftPage");
+    const rightPage = document.querySelector("#photoAlbumRightPage");
+    const leftImage = document.querySelector("#photoAlbumLeftImage");
+    const rightImage = document.querySelector("#photoAlbumRightImage");
+    const underLeft = document.querySelector("#photoAlbumUnderLeft");
+    const underRight = document.querySelector("#photoAlbumUnderRight");
+    const turningSheet = document.querySelector("#photoAlbumTurningSheet");
+    const turningFront = document.querySelector("#photoAlbumTurningFront");
+    const turningBack = document.querySelector("#photoAlbumTurningBack");
     const previousEdge = document.querySelector("#photoAlbumPreviousEdge");
     const nextEdge = document.querySelector("#photoAlbumNextEdge");
-    const currentLabel = document.querySelector("#photoAlbumCurrent");
-    const progress = document.querySelector("#photoAlbumProgress");
-    const progressBar = progress?.parentElement;
     const lightbox = document.querySelector("#lightbox");
     const lightboxImage = document.querySelector("#lightboxImage");
     const closeButton = document.querySelector("#lightboxClose");
-    let currentIndex = 0;
+    const spreadCount = Math.ceil(pages.length / 2);
+    let currentSpread = -1;
     let isTurning = false;
     let pointerStart = null;
 
@@ -666,82 +672,144 @@
       image.src = pages[index].src;
     }
 
-    function updateAlbumState() {
-      const current = pages[currentIndex];
-      if (!current) return;
-      activeImage.src = current.src;
-      activeImage.alt = current.alt || "婚礼相册";
-      activePage.classList.toggle("is-cover", currentIndex === 0);
-      activePage.setAttribute("aria-label", currentIndex === 0 ? "放大查看相册封面" : `放大查看相册第 ${currentIndex} 页`);
-      currentLabel.textContent = currentIndex === 0 ? "封面" : String(currentIndex).padStart(2, "0");
-      const atStart = currentIndex === 0;
-      const atEnd = currentIndex === pages.length - 1;
-      previousButton.disabled = atStart;
-      previousEdge.disabled = atStart;
-      nextButton.disabled = atEnd;
-      nextEdge.disabled = atEnd;
-      const progressValue = pages.length ? ((currentIndex + 1) / pages.length) * 100 : 100;
-      progress.style.width = `${progressValue}%`;
-      progressBar?.setAttribute("aria-valuenow", String(currentIndex + 1));
-      preloadPage(currentIndex - 1);
-      preloadPage(currentIndex + 1);
+    function getSpread(index) {
+      return {
+        left: pages[index * 2] || null,
+        right: pages[index * 2 + 1] || null,
+      };
     }
 
-    function turnPage(direction) {
-      if (isTurning || !pages.length) return;
-      const nextIndex = currentIndex + direction;
-      if (nextIndex < 0 || nextIndex >= pages.length) return;
+    function setPage(button, image, page, pageNumber) {
+      button.hidden = !page;
+      if (!page) {
+        image.removeAttribute("src");
+        image.alt = "";
+        return;
+      }
+      image.src = page.src;
+      image.alt = page.alt || `婚礼相册第 ${pageNumber} 页`;
+      button.setAttribute("aria-label", `放大查看相册第 ${pageNumber} 页`);
+    }
+
+    function showSpread(index) {
+      const current = getSpread(index);
+      setPage(leftPage, leftImage, current.left, index * 2 + 1);
+      setPage(rightPage, rightImage, current.right, index * 2 + 2);
+      previousEdge.disabled = false;
+      nextEdge.disabled = index >= spreadCount - 1;
+      previousEdge.tabIndex = -1;
+      nextEdge.tabIndex = -1;
+      leftPage.tabIndex = current.left ? 0 : -1;
+      rightPage.tabIndex = current.right ? 0 : -1;
+      spread.setAttribute("aria-hidden", "false");
+      cover.tabIndex = -1;
+      [pages[index * 2 - 2], pages[index * 2 - 1], pages[index * 2 + 2], pages[index * 2 + 3]].forEach(
+        (page) => page && preloadPage(pages.indexOf(page)),
+      );
+    }
+
+    function syncBookHeight() {
+      const shell = book.closest(".phone-shell");
+      const width = book.clientWidth || book.parentElement?.clientWidth || shell?.clientWidth || Math.min(window.innerWidth, 480);
+      book.style.setProperty("--album-closed-height", `${width * 0.68 * (1808 / 1280) + 18}px`);
+      book.style.setProperty("--album-spread-height", `${width * 1.12 * (1808 / 2560) + 18}px`);
+    }
+
+    function openAlbum() {
+      if (isTurning || !pages.length || currentSpread >= 0) return;
       isTurning = true;
-      const incoming = pages[nextIndex];
-      underImage.src = incoming.src;
+      currentSpread = 0;
+      showSpread(currentSpread);
+      book.classList.add("is-open", "is-opening");
+      window.setTimeout(() => {
+        book.classList.remove("is-opening");
+        isTurning = false;
+      }, 720);
+    }
+
+    function closeAlbum() {
+      if (isTurning || currentSpread < 0) return;
+      isTurning = true;
+      book.classList.add("is-closing");
+      book.classList.remove("is-open");
+      spread.setAttribute("aria-hidden", "true");
+      previousEdge.tabIndex = -1;
+      nextEdge.tabIndex = -1;
+      leftPage.tabIndex = -1;
+      rightPage.tabIndex = -1;
+      window.setTimeout(() => {
+        book.classList.remove("is-closing");
+        currentSpread = -1;
+        cover.tabIndex = 0;
+        isTurning = false;
+      }, 720);
+    }
+
+    function turnSpread(direction) {
+      if (isTurning || currentSpread < 0) return;
+      if (direction < 0 && currentSpread === 0) {
+        closeAlbum();
+        return;
+      }
+      const nextSpread = currentSpread + direction;
+      if (nextSpread < 0 || nextSpread >= spreadCount) return;
+      isTurning = true;
+      const current = getSpread(currentSpread);
+      const incoming = getSpread(nextSpread);
+      underLeft.src = incoming.left?.src || "";
+      underRight.src = incoming.right?.src || "";
+      turningFront.src = direction > 0 ? current.right?.src || "" : current.left?.src || "";
+      turningBack.src = direction > 0 ? incoming.left?.src || "" : incoming.right?.src || "";
+      turningSheet.hidden = false;
+      currentSpread = nextSpread;
+      showSpread(currentSpread);
       book.classList.add(direction > 0 ? "is-turning-next" : "is-turning-previous");
 
       let finished = false;
       const finishTurn = () => {
         if (finished) return;
         finished = true;
-        currentIndex = nextIndex;
-        updateAlbumState();
         book.classList.remove("is-turning-next", "is-turning-previous");
+        turningSheet.hidden = true;
         isTurning = false;
       };
-      activePage.addEventListener("animationend", finishTurn, { once: true });
+      turningSheet.addEventListener("animationend", finishTurn, { once: true });
       window.setTimeout(finishTurn, 760);
     }
 
-    function openCurrentPage() {
-      const current = pages[currentIndex];
-      if (!current) return;
-      lightboxImage.src = current.src;
-      lightboxImage.alt = current.alt || "婚礼照片";
+    function openPage(page) {
+      if (!page) return;
+      lightboxImage.src = page.src;
+      lightboxImage.alt = page.alt || "婚礼照片";
       lightbox.hidden = false;
       document.body.style.overflow = "hidden";
       closeButton.focus();
     }
 
-    previousButton.addEventListener("click", () => turnPage(-1));
-    previousEdge.addEventListener("click", () => turnPage(-1));
-    nextButton.addEventListener("click", () => turnPage(1));
-    nextEdge.addEventListener("click", () => turnPage(1));
-    activePage.addEventListener("click", openCurrentPage);
-    activePage.addEventListener("keydown", (event) => {
+    cover.addEventListener("click", openAlbum);
+    cover.addEventListener("keydown", (event) => {
       if (event.key !== "Enter" && event.key !== " ") return;
       event.preventDefault();
-      openCurrentPage();
+      openAlbum();
     });
+    leftPage.addEventListener("click", () => openPage(getSpread(currentSpread).left));
+    rightPage.addEventListener("click", () => openPage(getSpread(currentSpread).right));
+    previousEdge.addEventListener("click", () => turnSpread(-1));
+    nextEdge.addEventListener("click", () => turnSpread(1));
 
-    stage.addEventListener("pointerdown", (event) => {
+    book.addEventListener("pointerdown", (event) => {
       pointerStart = { x: event.clientX, y: event.clientY };
     });
-    stage.addEventListener("pointerup", (event) => {
+    book.addEventListener("pointerup", (event) => {
       if (!pointerStart) return;
       const deltaX = event.clientX - pointerStart.x;
       const deltaY = event.clientY - pointerStart.y;
       pointerStart = null;
       if (Math.abs(deltaX) < 44 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) return;
-      turnPage(deltaX < 0 ? 1 : -1);
+      if (currentSpread < 0 && deltaX < 0) openAlbum();
+      else turnSpread(deltaX < 0 ? 1 : -1);
     });
-    stage.addEventListener("pointercancel", () => {
+    book.addEventListener("pointercancel", () => {
       pointerStart = null;
     });
 
@@ -761,11 +829,15 @@
         return;
       }
       if (!lightbox.hidden || !document.querySelector("#photos")?.classList.contains("is-active")) return;
-      if (event.key === "ArrowLeft") turnPage(-1);
-      if (event.key === "ArrowRight") turnPage(1);
+      if (event.key === "ArrowLeft") turnSpread(-1);
+      if (event.key === "ArrowRight") {
+        if (currentSpread < 0) openAlbum();
+        else turnSpread(1);
+      }
     });
 
-    updateAlbumState();
+    syncBookHeight();
+    window.addEventListener("resize", syncBookHeight);
   }
 
   function bindAnonymousToggle(form, checkboxName, nameFieldName) {
