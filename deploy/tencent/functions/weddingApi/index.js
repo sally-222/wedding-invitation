@@ -156,11 +156,11 @@ function parseJson(value) {
 }
 
 function isWishesPath(pathname) {
-  return pathname === "/api/wishes" || pathname.endsWith("/api/wishes") || pathname === "/wishes";
+  return pathname === "/api/wishes" || pathname.endsWith("/api/wishes") || pathname === "/wishes" || pathname.endsWith("/wishes");
 }
 
 function isSeatsPath(pathname) {
-  return pathname === "/api/seats" || pathname.endsWith("/api/seats") || pathname === "/seats";
+  return pathname === "/api/seats" || pathname.endsWith("/api/seats") || pathname === "/seats" || pathname.endsWith("/seats");
 }
 
 function response(data, statusCode = 200) {

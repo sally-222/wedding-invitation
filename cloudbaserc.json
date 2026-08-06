@@ -4,7 +4,9 @@
   "functionRoot": "deploy/tencent/functions",
   "functions": [
     {
-      "name": "weddingApi",
+      "name": "weddingApiHttp",
+      "type": "HTTP",
+      "directory": "weddingApi",
       "runtime": "Nodejs20.19",
       "handler": "index.main",
       "timeout": 30,

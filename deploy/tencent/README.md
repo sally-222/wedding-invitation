@@ -6,6 +6,7 @@
 
 - 前端静态页面：`public/invitation`
 - 后端云函数：`deploy/tencent/functions/weddingApi`
+- 腾讯云函数名：`weddingApiHttp`
 - 数据库集合：`blessings`、`blessing_replies`、`seating_guests`
 - CloudBase 环境 ID：`wedding-invitation-d8cw19676945d`
 
@@ -21,16 +22,16 @@ tcb login
 2. 部署后端 HTTP 云函数。
 
 ```powershell
-tcb fn deploy weddingApi -e wedding-invitation-d8cw19676945d --force --httpFn --path /api
+tcb fn deploy weddingApiHttp --dir deploy/tencent/functions/weddingApi -e wedding-invitation-d8cw19676945d --force --httpFn --path /wedding-api
 ```
 
 这个命令会把 `weddingApi` 暴露到 HTTP 访问路径：
 
 ```text
-/api
+/wedding-api
 ```
 
-正常情况下，前端继续使用当前配置里的 `/api/wishes` 和 `/api/seats` 即可。如果控制台给你的公网地址不是和静态网站同域名，请把公网接口地址发给 Codex，我会把 `public/invitation/config.js` 里的接口地址改成完整 URL。
+前端当前使用完整接口地址：`https://wedding-invitation-d8cw19676945d.service.tcloudbase.com/wedding-api/wishes` 和 `https://wedding-invitation-d8cw19676945d.service.tcloudbase.com/wedding-api/seats`。
 
 4. 部署前端静态页面。
 
