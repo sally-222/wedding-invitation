@@ -93,9 +93,18 @@
           region: cloudbaseApi.region || "ap-shanghai",
         });
         if (cloudbaseApi.anonymousLogin !== false && cloudApp.auth) {
-          const auth = cloudApp.auth();
-          const hasLoginState = typeof auth.hasLoginState === "function" ? auth.hasLoginState() : null;
-          if (!hasLoginState && typeof auth.signInAnonymously === "function") {
+          const auth = typeof cloudApp.auth === "function" ? cloudApp.auth({ persistence: "local" }) : cloudApp.auth;
+          if (typeof auth.getSession === "function" && typeof auth.signInAnonymously === "function") {
+            const sessionResult = await auth.getSession();
+            if (!sessionResult?.data?.session) {
+              const signInResult = await auth.signInAnonymously();
+              if (signInResult?.error) throw new Error(signInResult.error.message || "cloudbase-auth-failed");
+            }
+          } else if (typeof auth.hasLoginState === "function" && typeof auth.anonymousAuthProvider === "function") {
+            if (!auth.hasLoginState()) {
+              await auth.anonymousAuthProvider().signIn();
+            }
+          } else if (typeof auth.signInAnonymously === "function") {
             const signInResult = await auth.signInAnonymously();
             if (signInResult?.error) throw new Error(signInResult.error.message || "cloudbase-auth-failed");
           }
