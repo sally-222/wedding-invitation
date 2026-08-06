@@ -66,6 +66,11 @@ button {
   padding-bottom: 0;
 }
 
+#invitation {
+  padding-bottom: 0;
+  background: var(--paper);
+}
+
 .view.is-active {
   display: block;
   animation: view-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -75,7 +80,7 @@ button {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: 18px 18px 18px;
+  padding: 18px 18px 0;
   background: var(--paper);
 }
 
@@ -237,10 +242,32 @@ button {
 }
 
 .home-details {
-  padding: 56px 22px 52px;
-  background:
-    linear-gradient(to bottom, var(--paper) 0, var(--paper-deep) 48px),
-    var(--paper-deep);
+  position: relative;
+  isolation: isolate;
+  padding: 52px 22px 52px;
+  background: var(--paper-deep);
+}
+
+.home-details::before {
+  content: "";
+  position: absolute;
+  top: -54px;
+  right: 0;
+  left: 0;
+  z-index: 0;
+  height: 72px;
+  background: linear-gradient(
+    to bottom,
+    rgba(246, 244, 239, 0),
+    rgba(246, 244, 239, 0.88) 52%,
+    var(--paper-deep)
+  );
+  pointer-events: none;
+}
+
+.home-details > * {
+  position: relative;
+  z-index: 1;
 }
 
 .home-details__intro {
@@ -341,7 +368,7 @@ button {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: 56px 22px;
+  padding: 56px 22px calc(var(--bottom-nav) + 56px);
   background: var(--paper);
 }
 

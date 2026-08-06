@@ -111,7 +111,10 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceStyles, /background-image:\s*url\("\.\/assets\/lace\/lace-repeat\.webp"\)/);
   assert.match(sourceStyles, /background-repeat:\s*repeat-y/);
   assert.match(sourceStyles, /\.cover::before,\s*\.schedule-block::before/);
-  assert.match(sourceStyles, /\.cover\s*\{[\s\S]*padding:\s*18px 18px 18px/);
+  assert.match(sourceStyles, /#invitation\s*\{[\s\S]*padding-bottom:\s*0/);
+  assert.match(sourceStyles, /\.cover\s*\{[\s\S]*padding:\s*18px 18px 0/);
+  assert.match(sourceStyles, /\.home-details::before\s*\{[\s\S]*linear-gradient/);
+  assert.match(sourceStyles, /\.schedule-block\s*\{[\s\S]*padding:\s*56px 22px calc\(var\(--bottom-nav\) \+ 56px\)/);
   assert.match(sourceStyles, /background-size:\s*74% auto/);
   assert.match(sourceStyles, /background-repeat:\s*repeat;/);
   assert.match(sourceStyles, /opacity:\s*0\.06/);
