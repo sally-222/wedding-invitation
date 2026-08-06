@@ -72,9 +72,33 @@ button {
 }
 
 .cover {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   min-height: calc(100svh - var(--bottom-nav));
   padding: 18px 18px 30px;
   background: var(--paper);
+}
+
+.cover::before,
+.schedule-block::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url("./assets/lace/lace-repeat.webp");
+  background-position: center top;
+  background-size: 100% auto;
+  background-repeat: repeat-y;
+  mix-blend-mode: multiply;
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+.cover > *,
+.schedule-block > * {
+  position: relative;
+  z-index: 1;
 }
 
 .cover__masthead {
@@ -315,6 +339,9 @@ button {
 }
 
 .schedule-block {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   padding: 56px 22px;
   background: var(--paper);
 }
