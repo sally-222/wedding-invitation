@@ -5,24 +5,24 @@ set ENV_ID=wedding-invitation-d8cw19676945d
 cd /d "%~dp0..\.."
 
 echo.
-echo 1/4 推送代码到 Gitee...
+echo 1/4 Push code to Gitee...
 git push gitee main
 if errorlevel 1 exit /b 1
 
 echo.
-echo 2/4 部署 CloudBase HTTP 云函数...
+echo 2/4 Deploy CloudBase HTTP function...
 tcb fn deploy weddingApi -e %ENV_ID% --force --httpFn --path /api
 if errorlevel 1 exit /b 1
 
 echo.
-echo 3/4 部署前端静态页面...
+echo 3/4 Deploy static website files...
 tcb hosting deploy public/invitation -e %ENV_ID% --concurrency 5 --retry-count 3
 if errorlevel 1 exit /b 1
 
 echo.
-echo 4/4 获取静态网站访问地址...
+echo 4/4 Show static website detail...
 tcb hosting detail -e %ENV_ID%
 if errorlevel 1 exit /b 1
 
 echo.
-echo 部署命令执行完成。请复制上方的静态网站访问地址进行测试。
+echo Deploy commands finished. Copy the website URL above and test it in browser.
