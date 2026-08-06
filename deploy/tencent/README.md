@@ -18,21 +18,19 @@ npm install -g @cloudbase/cli
 tcb login
 ```
 
-2. 部署后端云函数。
+2. 部署后端 HTTP 云函数。
 
 ```powershell
-tcb fn deploy weddingApi -e wedding-invitation-d8cw19676945d --force
+tcb fn deploy weddingApi -e wedding-invitation-d8cw19676945d --force --httpFn --path /api
 ```
 
-3. 在腾讯云 CloudBase 控制台打开 HTTP 访问服务，把 `weddingApi` 暴露为公网接口。
-
-推荐路径：
+这个命令会把 `weddingApi` 暴露到 HTTP 访问路径：
 
 ```text
 /api
 ```
 
-如果控制台给你的公网地址不是和静态网站同域名，请把公网接口地址发给 Codex，我会把 `public/invitation/config.js` 里的接口地址改成完整 URL。
+正常情况下，前端继续使用当前配置里的 `/api/wishes` 和 `/api/seats` 即可。如果控制台给你的公网地址不是和静态网站同域名，请把公网接口地址发给 Codex，我会把 `public/invitation/config.js` 里的接口地址改成完整 URL。
 
 4. 部署前端静态页面。
 
@@ -45,6 +43,16 @@ tcb hosting deploy public/invitation -e wedding-invitation-d8cw19676945d
 ```powershell
 tcb hosting detail -e wedding-invitation-d8cw19676945d
 ```
+
+## 一键部署
+
+也可以在项目根目录运行：
+
+```powershell
+.\deploy\tencent\deploy.cmd
+```
+
+脚本会依次推送 Gitee、部署云函数、部署静态页面、显示静态网站访问地址。
 
 ## 数据如何删除
 
