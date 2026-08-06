@@ -1002,25 +1002,51 @@
     if (!replyTotal) return "";
     const isExpanded = expandedReplies.has(wish.id);
     const replies = isExpanded ? fullRepliesByWish[wish.id] || wish.replies || [] : (wish.replies || []).slice(-replyPreviewSize);
-    const expandButton =
-      !isExpanded && replyTotal > replies.length
-        ? `<button class="reply-expand" type="button" data-wish-replies="${escapeHtml(wish.id)}">查看全部 ${escapeHtml(replyTotal)} 条回复</button>`
+    const toggleButton =
+      replyTotal > replyPreviewSize
+        ? `<button class="reply-expand" type="button" data-wish-replies="${escapeHtml(wish.id)}" data-reply-expanded="${isExpanded ? "true" : "false"}">${isExpanded ? "收起回复" : `查看全部 ${escapeHtml(replyTotal)} 条回复`}</button>`
         : "";
-    return `<div class="reply-list">${renderReplyRows(replies)}${expandButton}</div>`;
+    return `<div class="reply-list">${renderReplyRows(replies)}${toggleButton}</div>`;
+  }
+
+  function visibleWishPages(totalPages, currentPage) {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, index) => index + 1);
+    const pages = new Set([1, totalPages, currentPage, currentPage - 1, currentPage + 1]);
+    if (currentPage <= 3) {
+      pages.add(2);
+      pages.add(3);
+      pages.add(4);
+    }
+    if (currentPage >= totalPages - 2) {
+      pages.add(totalPages - 1);
+      pages.add(totalPages - 2);
+      pages.add(totalPages - 3);
+    }
+    const sorted = Array.from(pages)
+      .filter((page) => page >= 1 && page <= totalPages)
+      .sort((a, b) => a - b);
+    return sorted.reduce((items, page, index) => {
+      if (index > 0 && page - sorted[index - 1] > 1) items.push("ellipsis");
+      items.push(page);
+      return items;
+    }, []);
   }
 
   function renderWishPagination(totalPages) {
     if (totalPages <= 1) return "";
-    const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+    const pages = visibleWishPages(totalPages, wishCurrentPage);
     return `
       <nav class="wish-pagination" aria-label="祝福分页">
         ${pages
           .map(
-            (page) => `
-              <button class="wish-pagination__item${page === wishCurrentPage ? " is-active" : ""}" type="button" data-wish-page="${page}" ${page === wishCurrentPage ? 'aria-current="page"' : ""}>
-                ${page}
-              </button>
-            `,
+            (page) =>
+              page === "ellipsis"
+                ? '<span class="wish-pagination__ellipsis" aria-hidden="true">...</span>'
+                : `
+                  <button class="wish-pagination__item${page === wishCurrentPage ? " is-active" : ""}" type="button" data-wish-page="${page}" ${page === wishCurrentPage ? 'aria-current="page"' : ""}>
+                    ${page}
+                  </button>
+                `,
           )
           .join("")}
       </nav>
@@ -1073,7 +1099,13 @@
 
     list.querySelectorAll("[data-wish-replies]").forEach((button) => {
       button.addEventListener("click", () => {
-        loadFullReplies(button.dataset.wishReplies);
+        const wishId = button.dataset.wishReplies;
+        if (expandedReplies.has(wishId)) {
+          expandedReplies.delete(wishId);
+          renderWishList();
+          return;
+        }
+        loadFullReplies(wishId);
       });
     });
 

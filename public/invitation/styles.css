@@ -1281,28 +1281,34 @@ button.album-spread__page {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
+  gap: 12px;
   padding: 22px 0 0;
 }
 
 .wish-pagination__item {
-  display: grid;
-  place-items: center;
-  min-width: 32px;
-  height: 32px;
-  padding: 0 9px;
-  border: 1px solid rgba(86, 105, 125, 0.24);
-  border-radius: 50%;
-  background: rgba(246, 244, 239, 0.58);
+  min-width: 18px;
+  min-height: 30px;
+  padding: 0 2px;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: transparent;
   color: var(--sage-dark);
   font: 500 13px/1 "Times New Roman", serif;
   cursor: pointer;
 }
 
 .wish-pagination__item.is-active {
-  border-color: var(--sage-dark);
-  background: var(--sage-dark);
-  color: var(--paper);
+  border-bottom-color: var(--sage-dark);
+  color: var(--ink);
+}
+
+.wish-pagination__ellipsis {
+  display: inline-grid;
+  place-items: center;
+  min-width: 14px;
+  min-height: 30px;
+  color: rgba(86, 105, 125, 0.58);
+  font: 500 13px/1 "Times New Roman", serif;
 }
 
 .switch-line--compact {

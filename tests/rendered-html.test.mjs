@@ -145,9 +145,13 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceApp, /if \(wishApiEndpoint\) return \[\]/);
   assert.match(sourceApp, /当前预览未连接数据库/);
   assert.match(sourceApp, /renderWishPagination/);
+  assert.match(sourceApp, /visibleWishPages/);
+  assert.match(sourceApp, /收起回复/);
   assert.match(sourceApp, /data-wish-page/);
   assert.match(sourceApp, /reply-expand/);
   assert.match(sourceApp, /loadFullReplies/);
+  assert.match(sourceStyles, /wish-pagination__ellipsis/);
+  assert.match(sourceStyles, /border-bottom: 1px solid transparent/);
   assert.match(sourceApp, /postJson\(`\$\{wishApiEndpoint\}\/\$\{encodeURIComponent\(wishId\)\}\/replies`/);
   assert.match(wishRoute, /export async function GET/);
   assert.match(wishRoute, /export async function POST/);
