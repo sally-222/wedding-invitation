@@ -11,17 +11,17 @@ if errorlevel 1 exit /b 1
 
 echo.
 echo 2/4 Deploy CloudBase event function...
-tcb fn deploy weddingApiEvent --dir deploy/tencent/functions/weddingApi -e %ENV_ID% --force
+call tcb.cmd fn deploy weddingApiEvent --dir deploy/tencent/functions/weddingApi -e %ENV_ID% --force
 if errorlevel 1 exit /b 1
 
 echo.
 echo 3/4 Deploy static website files...
-tcb hosting deploy public/invitation -e %ENV_ID% --concurrency 5 --retry-count 3
+call tcb.cmd hosting deploy public/invitation -e %ENV_ID% --concurrency 5 --retry-count 3
 if errorlevel 1 exit /b 1
 
 echo.
 echo 4/4 Show static website detail...
-tcb hosting detail -e %ENV_ID%
+call tcb.cmd hosting detail -e %ENV_ID%
 if errorlevel 1 exit /b 1
 
 echo.
