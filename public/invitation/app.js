@@ -4,12 +4,19 @@
   const storageKey = "wedding-wishes-v2";
   const seedRepliesStorageKey = "wedding-seed-replies-v1";
   const wishApiEndpoint = config.blessing?.apiEndpoint || "";
+  const wishPageSize = Number(config.blessing?.pageSize || 10);
+  const replyPreviewSize = Number(config.blessing?.replyPreviewSize || 2);
+  const replyPageSize = Number(config.blessing?.replyPageSize || 100);
   let audioController = null;
   let musicAutoplayAttempted = false;
   let musicAutoResumeBound = false;
   let musicUserPaused = false;
   let remoteWishes = null;
+  let remoteWishPagination = { page: 1, pageSize: wishPageSize, total: 0, totalPages: 1 };
+  let wishCurrentPage = 1;
   let wishApiStatus = wishApiEndpoint ? "unknown" : "unavailable";
+  const expandedReplies = new Set();
+  const fullRepliesByWish = {};
 
   function escapeHtml(value) {
     return String(value ?? "")
@@ -70,6 +77,15 @@
       throw error;
     }
     return data;
+  }
+
+  function buildApiUrl(url, params) {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") query.set(key, String(value));
+    });
+    const separator = url.includes("?") ? "&" : "?";
+    return query.toString() ? `${url}${separator}${query.toString()}` : url;
   }
 
   function pageHeader(index, english, title, copy) {
@@ -863,10 +879,18 @@
     loadRemoteWishes();
   }
 
-  async function loadRemoteWishes() {
+  async function loadRemoteWishes(page = wishCurrentPage) {
     if (!wishApiEndpoint) return;
     try {
-      const response = await fetch(wishApiEndpoint, { headers: { Accept: "application/json" } });
+      wishCurrentPage = Math.max(1, Number(page) || 1);
+      const response = await fetch(
+        buildApiUrl(wishApiEndpoint, {
+          page: wishCurrentPage,
+          pageSize: wishPageSize,
+          replyLimit: replyPreviewSize,
+        }),
+        { headers: { Accept: "application/json" } },
+      );
       if (!response.ok) {
         wishApiStatus = response.status === 404 ? "unavailable" : "error";
         remoteWishes = null;
@@ -876,6 +900,13 @@
       const data = await response.json();
       wishApiStatus = "available";
       remoteWishes = Array.isArray(data.wishes) ? data.wishes : [];
+      remoteWishPagination = {
+        page: Number(data.page || wishCurrentPage),
+        pageSize: Number(data.pageSize || wishPageSize),
+        total: Number(data.total || remoteWishes.length),
+        totalPages: Math.max(1, Number(data.totalPages || 1)),
+      };
+      wishCurrentPage = remoteWishPagination.page;
       renderWishList();
     } catch {
       wishApiStatus = "unavailable";
@@ -915,11 +946,9 @@
           anonymous,
         });
         wishApiStatus = "available";
-        remoteWishes = Array.isArray(remoteWishes) ? remoteWishes : [];
-        remoteWishes.unshift(data.wish);
         form.reset();
         syncWishAuthor();
-        renderWishList();
+        await loadRemoteWishes(1);
         showToast("祝福已发布");
         return;
       } catch (error) {
@@ -951,6 +980,117 @@
     submitButton.textContent = "发布祝福";
   }
 
+  function replyCountOf(wish) {
+    return Number(wish.replyCount ?? (wish.replies || []).length);
+  }
+
+  function renderReplyRows(replies) {
+    return replies
+      .map(
+        (reply) => `
+          <div class="reply">
+            <p class="reply__name">${escapeHtml(reply.name || "匿名亲友")}</p>
+            <p class="reply__text">${escapeHtml(reply.text)}</p>
+          </div>
+        `,
+      )
+      .join("");
+  }
+
+  function renderReplySection(wish) {
+    const replyTotal = replyCountOf(wish);
+    if (!replyTotal) return "";
+    const isExpanded = expandedReplies.has(wish.id);
+    const replies = isExpanded ? fullRepliesByWish[wish.id] || wish.replies || [] : (wish.replies || []).slice(-replyPreviewSize);
+    const expandButton =
+      !isExpanded && replyTotal > replies.length
+        ? `<button class="reply-expand" type="button" data-wish-replies="${escapeHtml(wish.id)}">查看全部 ${escapeHtml(replyTotal)} 条回复</button>`
+        : "";
+    return `<div class="reply-list">${renderReplyRows(replies)}${expandButton}</div>`;
+  }
+
+  function renderWishPagination(totalPages) {
+    if (totalPages <= 1) return "";
+    const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+    return `
+      <nav class="wish-pagination" aria-label="祝福分页">
+        ${pages
+          .map(
+            (page) => `
+              <button class="wish-pagination__item${page === wishCurrentPage ? " is-active" : ""}" type="button" data-wish-page="${page}" ${page === wishCurrentPage ? 'aria-current="page"' : ""}>
+                ${page}
+              </button>
+            `,
+          )
+          .join("")}
+      </nav>
+    `;
+  }
+
+  async function loadFullReplies(wishId) {
+    expandedReplies.add(wishId);
+    if (!wishApiEndpoint) {
+      renderWishList();
+      return;
+    }
+    if (!fullRepliesByWish[wishId]) {
+      try {
+        const response = await fetch(
+          buildApiUrl(`${wishApiEndpoint}/${encodeURIComponent(wishId)}/replies`, {
+            page: 1,
+            pageSize: replyPageSize,
+          }),
+          { headers: { Accept: "application/json" } },
+        );
+        if (!response.ok) throw new Error("reply-load-failed");
+        const data = await response.json();
+        fullRepliesByWish[wishId] = Array.isArray(data.replies) ? data.replies : [];
+        const target = remoteWishes?.find((wish) => wish.id === wishId);
+        if (target) target.replyCount = Number(data.total || fullRepliesByWish[wishId].length);
+      } catch {
+        expandedReplies.delete(wishId);
+        showToast("回复暂时无法展开，请稍后重试");
+      }
+    }
+    renderWishList();
+  }
+
+  function bindWishListControls(list) {
+    list.querySelectorAll("[data-wish-page]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const nextPage = Number(button.dataset.wishPage || 1);
+        if (nextPage === wishCurrentPage) return;
+        wishCurrentPage = nextPage;
+        if (wishApiEndpoint) {
+          wishApiStatus = "unknown";
+          renderWishList();
+          loadRemoteWishes(nextPage);
+        } else {
+          renderWishList();
+        }
+      });
+    });
+
+    list.querySelectorAll("[data-wish-replies]").forEach((button) => {
+      button.addEventListener("click", () => {
+        loadFullReplies(button.dataset.wishReplies);
+      });
+    });
+
+    list.querySelectorAll(".reply-form").forEach((form) => {
+      bindAnonymousToggle(form, "replyAnonymous", "replyName");
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const formData = new FormData(form);
+        addReply(form.dataset.wishId, {
+          name: formData.get("replyName"),
+          anonymous: formData.get("replyAnonymous") === "on",
+          text: formData.get("replyText"),
+        });
+      });
+    });
+  }
+
   function renderWishList() {
     const list = document.querySelector("#wishList");
     if (wishApiEndpoint && wishApiStatus === "unknown") {
@@ -966,31 +1106,26 @@
       return;
     }
     const wishes = allWishes();
-    if (!wishes.length) {
+    const totalWishes = wishApiEndpoint ? remoteWishPagination.total : wishes.length;
+    const totalPages = wishApiEndpoint ? remoteWishPagination.totalPages : Math.max(1, Math.ceil(wishes.length / wishPageSize));
+    wishCurrentPage = Math.min(Math.max(1, wishCurrentPage), totalPages);
+    const pageOffset = (wishCurrentPage - 1) * wishPageSize;
+    const pageWishes = wishApiEndpoint ? wishes : wishes.slice(pageOffset, pageOffset + wishPageSize);
+    if (!totalWishes) {
       list.innerHTML = '<div class="wish-empty">还没有祝福，等你写下第一句。</div>';
       return;
     }
-    list.innerHTML = wishes
+    list.innerHTML =
+      pageWishes
       .map((wish, index) => {
-        const replies = (wish.replies || [])
-          .map(
-            (reply) => `
-              <div class="reply">
-                <p class="reply__name">${escapeHtml(reply.name || "匿名亲友")}</p>
-                <p class="reply__text">${escapeHtml(reply.text)}</p>
-              </div>
-            `,
-          )
-          .join("");
-
         return `
           <article class="wish">
             <div class="wish__head">
               <p class="wish__name">${escapeHtml(wish.name)}</p>
-              <span class="wish__mark">No. ${String(index + 1).padStart(2, "0")}</span>
+              <span class="wish__mark">No. ${String(pageOffset + index + 1).padStart(2, "0")}</span>
             </div>
             <p class="wish__text">${escapeHtml(wish.text)}</p>
-            ${replies ? `<div class="reply-list">${replies}</div>` : ""}
+            ${renderReplySection(wish)}
             <details class="reply-composer">
               <summary>回复这条祝福 <span aria-hidden="true">＋</span></summary>
               <form class="reply-form" data-wish-id="${escapeHtml(wish.id)}">
@@ -1012,20 +1147,8 @@
           </article>
         `;
       })
-      .join("");
-
-    list.querySelectorAll(".reply-form").forEach((form) => {
-      bindAnonymousToggle(form, "replyAnonymous", "replyName");
-      form.addEventListener("submit", (event) => {
-        event.preventDefault();
-        const formData = new FormData(form);
-        addReply(form.dataset.wishId, {
-          name: formData.get("replyName"),
-          anonymous: formData.get("replyAnonymous") === "on",
-          text: formData.get("replyText"),
-        });
-      });
-    });
+      .join("") + renderWishPagination(totalPages);
+    bindWishListControls(list);
   }
 
   function addReply(wishId, payload) {
@@ -1059,6 +1182,11 @@
         if (target) {
           target.replies = target.replies || [];
           target.replies.push(data.reply);
+          target.replies = target.replies.slice(-replyPreviewSize);
+          target.replyCount = replyCountOf(target) + 1;
+        }
+        if (fullRepliesByWish[wishId]) {
+          fullRepliesByWish[wishId].push(data.reply);
         }
         renderWishList();
         showToast("回复已发布");

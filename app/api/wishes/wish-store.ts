@@ -12,7 +12,24 @@ export type PublicWish = {
   name: string;
   text: string;
   createdAt: string;
+  replyCount: number;
   replies: PublicReply[];
+};
+
+export type WishPage = {
+  wishes: PublicWish[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+};
+
+export type ReplyPage = {
+  replies: PublicReply[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
 };
 
 type WishRow = {
@@ -28,6 +45,15 @@ type ReplyRow = {
   display_name: string;
   content: string;
   created_at: string;
+};
+
+type CountRow = {
+  total: number;
+};
+
+type ReplyCountRow = {
+  blessing_id: string;
+  total: number;
 };
 
 export function getD1() {
@@ -71,31 +97,72 @@ export function publicName(name: string, anonymous: boolean) {
   return anonymous ? "匿名亲友" : name;
 }
 
-export async function listWishes(db: D1Database): Promise<PublicWish[]> {
+function clampInteger(value: unknown, fallback: number, min: number, max: number) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(max, Math.max(min, Math.floor(parsed)));
+}
+
+export async function listWishes(
+  db: D1Database,
+  options: { page?: number; pageSize?: number; replyLimit?: number } = {},
+): Promise<WishPage> {
   await ensureWishSchema(db);
+
+  const pageSize = clampInteger(options.pageSize, 10, 1, 30);
+  const requestedPage = clampInteger(options.page, 1, 1, 9999);
+  const replyLimit = clampInteger(options.replyLimit, 2, 0, 6);
+  const totalRow = await db.prepare("SELECT COUNT(*) AS total FROM blessings").first<CountRow>();
+  const total = Number(totalRow?.total || 0);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const page = Math.min(requestedPage, totalPages);
+  const offset = (page - 1) * pageSize;
 
   const { results: wishRows = [] } = await db
     .prepare(
       `SELECT id, display_name, content, created_at
        FROM blessings
        ORDER BY created_at DESC
-       LIMIT 120`,
+       LIMIT ? OFFSET ?`,
     )
+    .bind(pageSize, offset)
     .all<WishRow>();
 
-  if (!wishRows.length) return [];
+  if (!wishRows.length) {
+    return { wishes: [], page, pageSize, total, totalPages };
+  }
 
   const ids = wishRows.map((wish) => wish.id);
   const placeholders = ids.map(() => "?").join(", ");
-  const { results: replyRows = [] } = await db
+  const { results: replyCountRows = [] } = await db
     .prepare(
-      `SELECT id, blessing_id, display_name, content, created_at
+      `SELECT blessing_id, COUNT(*) AS total
        FROM blessing_replies
        WHERE blessing_id IN (${placeholders})
-       ORDER BY created_at ASC`,
+       GROUP BY blessing_id`,
     )
     .bind(...ids)
-    .all<ReplyRow>();
+    .all<ReplyCountRow>();
+
+  const replyCounts = new Map(replyCountRows.map((reply) => [reply.blessing_id, Number(reply.total || 0)]));
+  const replyRows = replyLimit
+    ? (
+        await db
+          .prepare(
+            `SELECT id, blessing_id, display_name, content, created_at
+             FROM (
+               SELECT id, blessing_id, display_name, content, created_at,
+                 ROW_NUMBER() OVER (PARTITION BY blessing_id ORDER BY created_at DESC) AS reply_rank
+               FROM blessing_replies
+               WHERE blessing_id IN (${placeholders})
+             )
+             WHERE reply_rank <= ?
+             ORDER BY blessing_id ASC, created_at ASC`,
+          )
+          .bind(...ids, replyLimit)
+          .all<ReplyRow>()
+      ).results || []
+    : [];
 
   const repliesByWish = new Map<string, PublicReply[]>();
   for (const reply of replyRows) {
@@ -109,13 +176,20 @@ export async function listWishes(db: D1Database): Promise<PublicWish[]> {
     repliesByWish.set(reply.blessing_id, list);
   }
 
-  return wishRows.map((wish) => ({
-    id: wish.id,
-    name: wish.display_name,
-    text: wish.content,
-    createdAt: wish.created_at,
-    replies: repliesByWish.get(wish.id) || [],
-  }));
+  return {
+    wishes: wishRows.map((wish) => ({
+      id: wish.id,
+      name: wish.display_name,
+      text: wish.content,
+      createdAt: wish.created_at,
+      replyCount: replyCounts.get(wish.id) || 0,
+      replies: repliesByWish.get(wish.id) || [],
+    })),
+    page,
+    pageSize,
+    total,
+    totalPages,
+  };
 }
 
 export async function getWish(db: D1Database, id: string) {
@@ -124,4 +198,45 @@ export async function getWish(db: D1Database, id: string) {
     .prepare("SELECT id FROM blessings WHERE id = ? LIMIT 1")
     .bind(id)
     .first<{ id: string }>();
+}
+
+export async function listReplies(
+  db: D1Database,
+  blessingId: string,
+  options: { page?: number; pageSize?: number } = {},
+): Promise<ReplyPage> {
+  await ensureWishSchema(db);
+  const pageSize = clampInteger(options.pageSize, 100, 1, 100);
+  const requestedPage = clampInteger(options.page, 1, 1, 9999);
+  const totalRow = await db
+    .prepare("SELECT COUNT(*) AS total FROM blessing_replies WHERE blessing_id = ?")
+    .bind(blessingId)
+    .first<CountRow>();
+  const total = Number(totalRow?.total || 0);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const page = Math.min(requestedPage, totalPages);
+  const offset = (page - 1) * pageSize;
+  const { results: replyRows = [] } = await db
+    .prepare(
+      `SELECT id, blessing_id, display_name, content, created_at
+       FROM blessing_replies
+       WHERE blessing_id = ?
+       ORDER BY created_at ASC
+       LIMIT ? OFFSET ?`,
+    )
+    .bind(blessingId, pageSize, offset)
+    .all<ReplyRow>();
+
+  return {
+    replies: replyRows.map((reply) => ({
+      id: reply.id,
+      name: reply.display_name,
+      text: reply.content,
+      createdAt: reply.created_at,
+    })),
+    page,
+    pageSize,
+    total,
+    totalPages,
+  };
 }

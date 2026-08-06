@@ -30,6 +30,9 @@ window.WEDDING_CONFIG = {
     apiEndpoint: "/api/wishes",
     allowAnonymousWishes: true,
     allowAnonymousReplies: true,
+    pageSize: 10,
+    replyPreviewSize: 2,
+    replyPageSize: 100,
   },
   seatLookup: {
     apiEndpoint: "/api/seats",

@@ -1213,6 +1213,18 @@ button.album-spread__page {
   padding-bottom: 7px;
 }
 
+.reply-expand {
+  min-height: 30px;
+  padding: 4px 0 0;
+  border: 0;
+  background: transparent;
+  color: var(--sage-dark);
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: left;
+  cursor: pointer;
+}
+
 .reply__name {
   font-size: 11px;
 }
@@ -1263,6 +1275,34 @@ button.album-spread__page {
 
 .reply-form .button {
   min-height: 42px;
+}
+
+.wish-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  padding: 22px 0 0;
+}
+
+.wish-pagination__item {
+  display: grid;
+  place-items: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 9px;
+  border: 1px solid rgba(86, 105, 125, 0.24);
+  border-radius: 50%;
+  background: rgba(246, 244, 239, 0.58);
+  color: var(--sage-dark);
+  font: 500 13px/1 "Times New Roman", serif;
+  cursor: pointer;
+}
+
+.wish-pagination__item.is-active {
+  border-color: var(--sage-dark);
+  background: var(--sage-dark);
+  color: var(--paper);
 }
 
 .switch-line--compact {

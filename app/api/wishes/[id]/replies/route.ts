@@ -1,4 +1,30 @@
-import { cleanText, ensureWishSchema, getD1, getWish, publicName } from "../../wish-store";
+import { cleanText, ensureWishSchema, getD1, getWish, listReplies, publicName } from "../../wish-store";
+
+function integerParam(url: URL, key: string) {
+  const value = Number(url.searchParams.get(key));
+  return Number.isFinite(value) ? value : undefined;
+}
+
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
+  try {
+    const { id: blessingId } = await context.params;
+    const db = getD1();
+    const wish = await getWish(db, blessingId);
+    if (!wish) {
+      return Response.json({ error: "这条祝福不存在或已被移除。" }, { status: 404 });
+    }
+
+    const url = new URL(request.url);
+    const data = await listReplies(db, blessingId, {
+      page: integerParam(url, "page"),
+      pageSize: integerParam(url, "pageSize"),
+    });
+    return Response.json(data);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "回复暂时无法读取。";
+    return Response.json({ error: message }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   try {

@@ -1,9 +1,19 @@
 import { cleanText, ensureWishSchema, getD1, listWishes, publicName } from "./wish-store";
 
-export async function GET() {
+function integerParam(url: URL, key: string) {
+  const value = Number(url.searchParams.get(key));
+  return Number.isFinite(value) ? value : undefined;
+}
+
+export async function GET(request: Request) {
   try {
-    const wishes = await listWishes(getD1());
-    return Response.json({ wishes });
+    const url = new URL(request.url);
+    const data = await listWishes(getD1(), {
+      page: integerParam(url, "page"),
+      pageSize: integerParam(url, "pageSize"),
+      replyLimit: integerParam(url, "replyLimit"),
+    });
+    return Response.json(data);
   } catch (error) {
     const message = error instanceof Error ? error.message : "祝福暂时无法读取。";
     return Response.json({ error: message }, { status: 500 });
@@ -48,6 +58,7 @@ export async function POST(request: Request) {
           name: displayName,
           text,
           createdAt: new Date().toISOString(),
+          replyCount: 0,
           replies: [],
         },
       },
