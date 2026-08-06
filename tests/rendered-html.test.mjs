@@ -167,7 +167,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceApp, /如果有一句话想对我们说/);
   assert.match(sourceApp, /这里吧。\\n谢谢您/);
   assert.match(sourceApp, /婚礼前夕，我们将发送专属邀请码/);
-  assert.match(sourceApp, /您的座位。\\n婚礼前夕/);
+  assert.doesNotMatch(sourceApp, /欢迎赴宴，请在这里查看您的座位/);
   assert.match(sourceApp, /data-travel-filter/);
   assert.match(sourceStyles, /\.travel-card\[hidden\]/);
   assert.match(sourceTravel, /categories:\s*\["地方小吃", "濮阳风味", "暖胃正餐"\]/);

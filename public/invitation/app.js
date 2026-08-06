@@ -355,7 +355,7 @@
     return `
       <section id="seats" class="view" data-view>
         <div class="page page--tinted page--seats">
-          ${pageHeader("05 / 05", "Seat finder", "座位查询", "欢迎赴宴，请在这里查看您的座位。\n婚礼前夕，我们将发送专属邀请码，届时即可查看您的座位安排。")}
+          ${pageHeader("05 / 05", "Seat finder", "座位查询", "婚礼前夕，我们将发送专属邀请码，届时即可查看您的座位安排。")}
           <div class="seat-stage">
             <p class="seat-stage__label">Find your table</p>
             <h2 class="seat-stage__title">欢迎赴宴，<br />请在这里找到<br />属于您的席位。</h2>

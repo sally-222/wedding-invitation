@@ -468,8 +468,17 @@ button {
   background-position: center top;
   background-size: 100% auto;
   background-repeat: repeat-y;
-  opacity: 0.16;
   mix-blend-mode: multiply;
+}
+
+.page--travel::before,
+.page--wishes::before {
+  opacity: 0.08;
+}
+
+.page--photos::before,
+.page--seats::before {
+  opacity: 0.16;
 }
 
 .page--travel::after,
