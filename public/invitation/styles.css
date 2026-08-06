@@ -451,81 +451,81 @@ button {
 }
 
 .page--travel::before {
-  top: 128px;
-  right: -58px;
-  bottom: 0;
-  width: 182px;
-  background: url("./assets/lace/lace-travel.webp") top center / 150px auto repeat-y;
-  opacity: 0.09;
+  inset: 0;
+  background:
+    url("./assets/lace/lace-photo.webp") center 160px / 620px auto repeat-x,
+    url("./assets/lace/lace-travel.webp") right -64px top 300px / 214px auto repeat-y,
+    url("./assets/lace/lace-wishes.webp") left -138px top 820px / 356px auto no-repeat;
+  opacity: 0.105;
+  mix-blend-mode: multiply;
 }
 
 .page--travel::after {
-  top: 660px;
-  bottom: 0;
-  left: -78px;
-  width: 150px;
-  background: url("./assets/lace/lace-travel.webp") top center / 136px auto repeat-y;
-  opacity: 0.045;
-  transform: scaleX(-1);
+  inset: 0;
+  background:
+    url("./assets/lace/lace-seats.webp") right -112px top 1160px / 330px auto no-repeat,
+    url("./assets/lace/lace-travel.webp") left -88px top 1660px / 188px auto repeat-y,
+    url("./assets/lace/lace-photo.webp") center bottom 72px / 560px auto repeat-x;
+  opacity: 0.06;
+  mix-blend-mode: multiply;
 }
 
 .page--photos::before {
-  top: 154px;
-  right: -20px;
-  left: -20px;
-  height: 92px;
-  background: url("./assets/lace/lace-photo.webp") center / 520px auto repeat-x;
-  opacity: 0.1;
+  inset: 0;
+  background:
+    url("./assets/lace/lace-photo.webp") center 154px / 640px auto repeat-x,
+    url("./assets/lace/lace-travel.webp") right -76px top 276px / 232px auto no-repeat,
+    url("./assets/lace/lace-wishes.webp") left -126px bottom 34px / 318px auto no-repeat;
+  opacity: 0.115;
+  mix-blend-mode: multiply;
 }
 
 .page--photos::after {
-  right: -20px;
-  bottom: 18px;
-  left: -20px;
-  height: 70px;
-  background: url("./assets/lace/lace-photo.webp") center / 460px auto repeat-x;
+  inset: 0;
+  background:
+    url("./assets/lace/lace-seats.webp") center 266px / 344px auto no-repeat,
+    url("./assets/lace/lace-photo.webp") center bottom 18px / 560px auto repeat-x;
   opacity: 0.065;
-  transform: rotate(180deg);
+  mix-blend-mode: multiply;
 }
 
 .page--wishes::before {
-  top: 152px;
-  right: -126px;
-  width: 342px;
-  aspect-ratio: 609 / 552;
-  background: url("./assets/lace/lace-wishes.webp") center / contain no-repeat;
-  opacity: 0.08;
-  transform: rotate(-8deg);
+  inset: 0;
+  background:
+    url("./assets/lace/lace-photo.webp") center 158px / 590px auto repeat-x,
+    url("./assets/lace/lace-wishes.webp") right -118px top 310px / 370px auto no-repeat,
+    url("./assets/lace/lace-travel.webp") left -92px top 780px / 202px auto repeat-y;
+  opacity: 0.1;
+  mix-blend-mode: multiply;
 }
 
 .page--wishes::after {
-  bottom: 68px;
-  left: -164px;
-  width: 330px;
-  aspect-ratio: 609 / 552;
-  background: url("./assets/lace/lace-wishes.webp") center / contain no-repeat;
-  opacity: 0.05;
-  transform: rotate(172deg);
+  inset: 0;
+  background:
+    url("./assets/lace/lace-seats.webp") center 690px / 354px auto no-repeat,
+    url("./assets/lace/lace-wishes.webp") left -152px bottom 118px / 344px auto no-repeat,
+    url("./assets/lace/lace-photo.webp") center bottom 28px / 540px auto repeat-x;
+  opacity: 0.055;
+  mix-blend-mode: multiply;
 }
 
 .page--seats::before {
-  top: 218px;
-  left: 50%;
-  width: min(86%, 390px);
-  aspect-ratio: 447 / 625;
-  background: url("./assets/lace/lace-seats.webp") center / contain no-repeat;
-  opacity: 0.075;
-  transform: translateX(-50%) rotate(2deg);
+  inset: 0;
+  background:
+    url("./assets/lace/lace-photo.webp") center 158px / 610px auto repeat-x,
+    url("./assets/lace/lace-travel.webp") left -70px top 330px / 230px auto no-repeat,
+    url("./assets/lace/lace-wishes.webp") right -142px bottom 16px / 356px auto no-repeat;
+  opacity: 0.105;
+  mix-blend-mode: multiply;
 }
 
 .page--seats::after {
-  right: -72px;
-  bottom: 28px;
-  width: 196px;
-  aspect-ratio: 609 / 552;
-  background: url("./assets/lace/lace-wishes.webp") center / contain no-repeat;
-  opacity: 0.035;
-  transform: rotate(-24deg);
+  inset: 0;
+  background:
+    url("./assets/lace/lace-seats.webp") center 252px / 390px auto no-repeat,
+    url("./assets/lace/lace-photo.webp") center bottom 22px / 550px auto repeat-x;
+  opacity: 0.07;
+  mix-blend-mode: multiply;
 }
 
 .page-head {
