@@ -113,6 +113,8 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceStyles, /\.cover::before,\s*\.schedule-block::before/);
   assert.match(sourceStyles, /#invitation\s*\{[\s\S]*padding-bottom:\s*0/);
   assert.match(sourceStyles, /\.cover\s*\{[\s\S]*padding:\s*18px 18px 18px/);
+  assert.match(sourceStyles, /\.cover::after\s*\{[\s\S]*bottom:\s*0/);
+  assert.match(sourceStyles, /\.cover::after\s*\{[\s\S]*height:\s*86px/);
   assert.match(sourceStyles, /\.home-details::before\s*\{[\s\S]*linear-gradient/);
   assert.match(sourceStyles, /\.home-details::before\s*\{[\s\S]*top:\s*0/);
   assert.match(sourceStyles, /\.home-details::before\s*\{[\s\S]*height:\s*112px/);
