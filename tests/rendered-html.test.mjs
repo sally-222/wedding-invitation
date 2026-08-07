@@ -59,6 +59,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
     builtHtml,
     shareCard,
     wechatVerifyFile,
+    wechatOfficialVerifyFile,
     hero,
     guoliangpi,
     zhuangmo,
@@ -84,6 +85,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
       readFile(new URL("../dist/client/invitation/index.html", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/assets/share-card.jpg", import.meta.url)),
       readFile(new URL("../dist/client/invitation/MP_verify_wNCDOk3cg9vK4RoU.txt", import.meta.url), "utf8"),
+      readFile(new URL("../dist/client/invitation/0f834a0421bc842f293b8a97398d1f4e.txt", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/assets/wedding-hero.jpg", import.meta.url)),
       readFile(new URL("../dist/client/invitation/assets/travel/guoliangpi.jpg", import.meta.url)),
       readFile(new URL("../dist/client/invitation/assets/travel/zhuangmo.jpg", import.meta.url)),
@@ -104,6 +106,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.equal(builtApp, sourceApp);
   assert.equal(builtHtml, sourceHtml);
   assert.equal(wechatVerifyFile.trim(), "wNCDOk3cg9vK4RoU");
+  assert.equal(wechatOfficialVerifyFile.trim(), "817967ebb97b2bc3b95ffef2c9d8d9d8f1f6b8c6");
 
   assert.match(sourceHtml, /<title>2026\.10\.6婚礼邀请函<\/title>/);
   assert.match(sourceHtml, /content="李辰海&沙雷雨馨"/);
