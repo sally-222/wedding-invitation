@@ -50,7 +50,6 @@ window.WEDDING_CONFIG = {
     desc: "李辰海&沙雷雨馨",
     link: "https://wedding-invitation-d8cw19676945d-1463852299.tcloudbaseapp.com/",
     imgUrl: "https://wedding-invitation-d8cw19676945d-1463852299.tcloudbaseapp.com/assets/share-card.jpg",
-    signPath: "wechat-sign",
   },
   schedule: [
     { time: "10:00", title: "迎宾", detail: "请在签到处领取座位信息" },
