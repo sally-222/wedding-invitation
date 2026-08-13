@@ -1578,6 +1578,14 @@ button.album-spread__page {
   cursor: pointer;
 }
 
+.lightbox__close:focus,
+.lightbox__close:focus-visible,
+.contact-dialog__close:focus,
+.contact-dialog__close:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
 .contact-dialog__list {
   padding: 0 20px 8px;
 }
@@ -1803,8 +1811,7 @@ button.album-spread__page {
 .album-page--active:focus-visible,
 .photo-album__nav:focus-visible,
 .photo-album__cover:focus-visible,
-.album-spread__page:focus-visible,
-.lightbox__close:focus-visible {
+.album-spread__page:focus-visible {
   outline: 2px solid var(--sage);
   outline-offset: 3px;
 }

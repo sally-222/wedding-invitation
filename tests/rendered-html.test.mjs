@@ -113,6 +113,11 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceHtml, /property="og:image"[\s\S]*share-card\.jpg/);
   assert.doesNotMatch(sourceHtml, /jweixin-1\.6\.0\.js/);
   assert.match(sourceConfig, /heroImage:\s*"\.\/assets\/wedding-hero\.jpg"/);
+  assert.match(sourceConfig, /dateISO:\s*"2026-10-06T11:16:00\+08:00"/);
+  assert.match(sourceConfig, /venue:\s*"中原油田宾馆（二所）"/);
+  assert.match(sourceConfig, /time:\s*"9:36"[\s\S]*title:\s*"迎宾"/);
+  assert.match(sourceConfig, /time:\s*"11:16"[\s\S]*title:\s*"仪式开始（草坪仪式）"/);
+  assert.match(sourceConfig, /time:\s*"12:16"[\s\S]*title:\s*"婚礼午宴"/);
   assert.match(sourceStyles, /--canvas:\s*#d7e3ee/);
   assert.match(sourceStyles, /--paper:\s*#f6f4ef/);
   assert.match(sourceStyles, /--paper-deep:\s*#e7e2d9/);
@@ -133,6 +138,8 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceStyles, /\.cover::after\s*\{[\s\S]*bottom:\s*0/);
   assert.match(sourceStyles, /\.cover::after\s*\{[\s\S]*height:\s*86px/);
   assert.match(sourceStyles, /\.home-details::before\s*\{[\s\S]*display:\s*none/);
+  assert.match(sourceStyles, /\.contact-dialog__close:focus-visible\s*\{[\s\S]*outline:\s*none/);
+  assert.doesNotMatch(sourceStyles, /\.album-spread__page:focus-visible,\s*\.lightbox__close:focus-visible/);
   assert.match(sourceStyles, /\.schedule-block\s*\{[\s\S]*padding:\s*56px 22px calc\(var\(--bottom-nav\) \+ 56px\)/);
   assert.match(sourceStyles, /background-size:\s*74% auto/);
   assert.match(sourceStyles, /background-repeat:\s*repeat;/);
@@ -145,6 +152,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceApp, /page--seats/);
   assert.match(sourceApp, /couple\.invitationLine/);
   assert.match(sourceApp, /couple\.lunarDate/);
+  assert.match(sourceApp, /邀您秋日相见/);
   assert.doesNotMatch(sourceApp, /mote&sally|cover__closing/);
   assert.match(sourceConfig, /invitationLine:\s*"诚邀您见证我们的婚礼"/);
   assert.match(sourceConfig, /lunarDate:\s*"农历八月廿六"/);

@@ -278,7 +278,7 @@
             <div class="home-details__monogram" aria-hidden="true">L · S</div>
             <div>
               <p class="home-details__eyebrow">Save the date</p>
-              <p class="home-details__lead">秋日相见，<br />与我们一起见证<br />这一天。</p>
+              <p class="home-details__lead">邀您秋日相见，<br />与我们一起见证<br />这一天。</p>
             </div>
           </div>
 
