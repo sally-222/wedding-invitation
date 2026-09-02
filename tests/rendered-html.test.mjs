@@ -58,6 +58,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
     builtApp,
     builtHtml,
     cloudflareWorker,
+    cloudflareEntry,
     shareCard,
     wechatVerifyFile,
     wechatOfficialVerifyFile,
@@ -85,6 +86,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
       readFile(new URL("../dist/client/invitation/app.js", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/index.html", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/_worker.js", import.meta.url), "utf8"),
+      readFile(new URL("../dist/client/index.js", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/assets/share-card.jpg", import.meta.url)),
       readFile(new URL("../dist/client/invitation/MP_verify_wNCDOk3cg9vK4RoU.txt", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/0f834a0421bc842f293b8a97398d1f4e.txt", import.meta.url), "utf8"),
@@ -109,6 +111,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.equal(builtHtml, sourceHtml);
   assert.match(cloudflareWorker, /cloudflare:workers/);
   assert.match(cloudflareWorker, /api\/wishes/);
+  assert.equal(cloudflareEntry, cloudflareWorker);
   assert.equal(wechatVerifyFile.trim(), "wNCDOk3cg9vK4RoU");
   assert.equal(wechatOfficialVerifyFile.trim(), "817967ebb97b2bc3b95ffef2c9d8d9d8f1f6b8c6");
 

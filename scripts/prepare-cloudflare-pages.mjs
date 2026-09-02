@@ -38,6 +38,7 @@ await access(resolve(serverDir, "index.js"));
 await access(clientDir);
 
 await copyFile(resolve(serverDir, "index.js"), resolve(clientDir, "_worker.js"));
+await copyFile(resolve(serverDir, "index.js"), resolve(clientDir, "index.js"));
 
 await Promise.all([
   copyIfExists(resolve(serverDir, "__vite_rsc_assets_manifest.js"), resolve(clientDir, "__vite_rsc_assets_manifest.js")),
