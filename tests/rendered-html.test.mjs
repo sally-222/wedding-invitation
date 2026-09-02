@@ -138,8 +138,8 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceHtml, /<title>2026\.10\.6婚礼邀请函<\/title>/);
   assert.match(sourceHtml, /content="李辰海&沙雷雨馨"/);
   assert.match(sourceHtml, /property="og:url" content="https:\/\/wedding-invitation\.pages\.dev\/invitation\/index\.html"/);
-  assert.match(sourceHtml, /property="og:image" content="https:\/\/wedding-invitation\.pages\.dev\/assets\/share-card\.jpg"/);
-  assert.match(sourceRootHtml, /property="og:image" content="https:\/\/wedding-invitation\.pages\.dev\/assets\/share-card\.jpg"/);
+  assert.match(sourceHtml, /property="og:image" content="https:\/\/mmbiz\.qpic\.cn\/mmbiz_jpg\/p1q58J1IVH5h1jyvzma5wcRcoDXhJskxtyqrCicWce4RpgrwQJjEyMibcBveofSZXYXFiaz0QI7OgcGtmXRjptz1de0lbkvsuI0KJ5xyRibcoDk\/640\?wx_fmt=jpeg&amp;from=appmsg"/);
+  assert.match(sourceRootHtml, /property="og:image" content="https:\/\/mmbiz\.qpic\.cn\/mmbiz_jpg\/p1q58J1IVH5h1jyvzma5wcRcoDXhJskxtyqrCicWce4RpgrwQJjEyMibcBveofSZXYXFiaz0QI7OgcGtmXRjptz1de0lbkvsuI0KJ5xyRibcoDk\/640\?wx_fmt=jpeg&amp;from=appmsg"/);
   assert.match(sourceRootHtml, /李辰海&沙雷雨馨/);
   assert.doesNotMatch(sourceHtml, /jweixin-1\.6\.0\.js/);
   assert.match(sourceConfig, /heroImage:\s*"\.\/assets\/wedding-hero\.jpg"/);
@@ -218,7 +218,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceConfig, /title:\s*"2026\.10\.6婚礼邀请函"/);
   assert.match(sourceConfig, /desc:\s*"李辰海&沙雷雨馨"/);
   assert.match(sourceConfig, /link:\s*"https:\/\/wedding-invitation\.pages\.dev\/invitation\/index\.html"/);
-  assert.match(sourceConfig, /imgUrl:\s*"https:\/\/wedding-invitation\.pages\.dev\/assets\/share-card\.jpg"/);
+  assert.match(sourceConfig, /imgUrl:\s*"https:\/\/mmbiz\.qpic\.cn\/mmbiz_jpg\/p1q58J1IVH5h1jyvzma5wcRcoDXhJskxtyqrCicWce4RpgrwQJjEyMibcBveofSZXYXFiaz0QI7OgcGtmXRjptz1de0lbkvsuI0KJ5xyRibcoDk\/640\?wx_fmt=jpeg&from=appmsg"/);
   assert.doesNotMatch(sourceConfig, /signPath:\s*"wechat-sign"/);
   assert.doesNotMatch(sourceHtml, /cloudbase\.full\.js/);
   assert.doesNotMatch(sourceConfig, /cloudbaseApi/);
