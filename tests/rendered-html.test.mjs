@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
 test("redirects the root route to the wedding invitation", async () => {
@@ -242,6 +242,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceTravel, /羊肉汤/);
   assert.match(sourceTravel, /m\.dianping\.com\/shopinfo\/G9oocPoIuMTNrB5m/);
   assert.match(sourceTravel, /\.\/assets\/travel\/guoliangpi\.jpg/);
+  await assert.rejects(access(new URL("../.wrangler/deploy/config.json", import.meta.url)), { code: "ENOENT" });
 
   assert.equal(hero[0], 0xff);
   assert.equal(hero[1], 0xd8);

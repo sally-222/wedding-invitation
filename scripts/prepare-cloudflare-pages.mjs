@@ -1,4 +1,4 @@
-import { access, copyFile, cp } from "node:fs/promises";
+import { access, copyFile, cp, unlink } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -24,6 +24,16 @@ async function copyDirectoryIfExists(source, destination) {
   await cp(source, destination, { recursive: true, force: true });
 }
 
+async function removeIfExists(target) {
+  try {
+    await unlink(target);
+  } catch (error) {
+    if (error?.code !== "ENOENT") {
+      throw error;
+    }
+  }
+}
+
 await access(resolve(serverDir, "index.js"));
 await access(clientDir);
 
@@ -37,5 +47,7 @@ await Promise.all([
   copyDirectoryIfExists(resolve(serverDir, "assets"), resolve(clientDir, "assets")),
   copyDirectoryIfExists(resolve(serverDir, "ssr"), resolve(clientDir, "ssr")),
 ]);
+
+await removeIfExists(resolve(root, ".wrangler", "deploy", "config.json"));
 
 console.log("Cloudflare Pages output is ready at dist/client.");
