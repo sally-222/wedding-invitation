@@ -4,7 +4,7 @@ window.WEDDING_CONFIG = {
     bride: "沙雷雨馨",
     date: "2026.10.6",
     lunarDate: "农历八月廿六",
-    dateISO: "2026-10-06T11:16:00+08:00",
+    dateISO: "2026-10-06T11:30:00+08:00",
     venue: "中原油田宾馆（二所）",
     address: "河南省濮阳市华龙区中原油田宾馆",
     dressCode: "浅色低饱和度",
@@ -46,9 +46,9 @@ window.WEDDING_CONFIG = {
     imgUrl: "https://wedding-invitation.pages.dev/invitation/assets/share-card.jpg",
   },
   schedule: [
-    { time: "9:36", title: "迎宾", detail: "请在签到处领取座位信息" },
-    { time: "11:16", title: "仪式开始（草坪仪式）", detail: "请提前入席，将手机调至静音" },
-    { time: "12:16", title: "婚礼午宴", detail: "一起举杯，慢慢享用午宴" },
+    { time: "10:00", title: "迎宾", detail: "请您入席稍候，与我们共赴今日之约" },
+    { time: "11:30", title: "仪式开始（草坪仪式）", detail: "请提前入席，将手机调至静音" },
+    { time: "12:30", title: "婚礼午宴", detail: "一起举杯，慢慢享用午宴" },
   ],
   travelSpots: [],
   assetCredits: [

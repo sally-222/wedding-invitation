@@ -247,11 +247,11 @@
           </div>
           <div class="action-row">
             <a class="button" href="${escapeHtml(config.map.url)}" target="_blank" rel="noreferrer">
-              <span class="button__icon" aria-hidden="true">⌖</span>
+              <span class="button__icon button__icon--map" aria-hidden="true">⌖</span>
               ${escapeHtml(config.map.label)}
             </a>
             <button class="button button--quiet" id="phoneButton" type="button">
-              <span class="button__icon" aria-hidden="true">☎</span>
+              <span class="button__icon button__icon--phone" aria-hidden="true">☎</span>
               联系新人
             </button>
           </div>
@@ -478,6 +478,7 @@
     bindSeats();
     updateCountdown();
     window.setInterval(updateCountdown, 60 * 1000);
+    bindAutoplayMusicSignals();
     attemptAutoplayMusic();
   }
 
@@ -554,12 +555,22 @@
     if (mark) mark.textContent = isPlaying ? "Ⅱ" : "♪";
   }
 
-  async function attemptAutoplayMusic() {
-    if (musicAutoplayAttempted) return;
+  async function attemptAutoplayMusic(options = {}) {
+    if (musicUserPaused) return;
+    if (musicAutoplayAttempted && !options.force) return;
     musicAutoplayAttempted = true;
     const isPlaying = await getAudioController().play({ silent: true });
     syncMusicButton(isPlaying);
     if (!isPlaying) bindFirstInteractionMusicResume();
+  }
+
+  function bindAutoplayMusicSignals() {
+    const retry = () => attemptAutoplayMusic({ force: true });
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", retry, { once: true });
+    }
+    window.addEventListener("pageshow", retry, { once: true });
+    document.addEventListener("WeixinJSBridgeReady", retry, { once: true });
   }
 
   function bindFirstInteractionMusicResume() {
@@ -601,8 +612,13 @@
       audio.src = config.music.audioUrl;
       audio.loop = true;
       audio.preload = "auto";
+      audio.autoplay = true;
       audio.playsInline = true;
+      audio.setAttribute("autoplay", "");
+      audio.setAttribute("playsinline", "");
+      audio.setAttribute("webkit-playsinline", "");
       audio.volume = Number(config.music.volume || 0.72);
+      audio.load();
       return {
         async play(options = {}) {
           if (!audio.paused) return true;
