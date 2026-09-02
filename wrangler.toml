@@ -1,0 +1,7 @@
+name = "wedding-invitation"
+compatibility_date = "2026-09-02"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "dist/client"
+
+# In Cloudflare Pages, bind your D1 database with variable name "DB".
+# The wedding wishes, replies, and seat lookup API read env.DB.

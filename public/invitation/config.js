@@ -27,7 +27,7 @@ window.WEDDING_CONFIG = {
     useBuiltInAmbientWhenNoAudio: true,
   },
   blessing: {
-    apiEndpoint: "",
+    apiEndpoint: "/api/wishes",
     allowAnonymousWishes: true,
     allowAnonymousReplies: true,
     pageSize: 10,
@@ -35,21 +35,15 @@ window.WEDDING_CONFIG = {
     replyPageSize: 100,
   },
   seatLookup: {
-    apiEndpoint: "",
+    apiEndpoint: "/api/seats",
     invitationCodeLength: 6,
     helpText: "婚礼前夕，我们将发送专属邀请码，届时即可查看您的座位安排。",
-  },
-  cloudbaseApi: {
-    envId: "wedding-invitation-d8cw19676945d",
-    region: "ap-shanghai",
-    functionName: "weddingApiEvent",
-    anonymousLogin: true,
   },
   share: {
     title: "2026.10.6婚礼邀请函",
     desc: "李辰海&沙雷雨馨",
-    link: "https://wedding-invitation-d8cw19676945d-1463852299.tcloudbaseapp.com/",
-    imgUrl: "https://wedding-invitation-d8cw19676945d-1463852299.tcloudbaseapp.com/assets/share-card.jpg",
+    link: "https://wedding-invitation.pages.dev/",
+    imgUrl: "https://wedding-invitation.pages.dev/assets/share-card.jpg",
   },
   schedule: [
     { time: "9:36", title: "迎宾", detail: "请在签到处领取座位信息" },

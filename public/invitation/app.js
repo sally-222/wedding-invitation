@@ -4,13 +4,10 @@
   const storageKey = "wedding-wishes-v2";
   const seedRepliesStorageKey = "wedding-seed-replies-v1";
   const wishApiEndpoint = config.blessing?.apiEndpoint || "";
-  const cloudbaseApi = config.cloudbaseApi || {};
-  const useCloudbaseApi = Boolean(cloudbaseApi.envId && cloudbaseApi.functionName);
-  const hasRemoteApi = Boolean(wishApiEndpoint || useCloudbaseApi);
+  const hasRemoteApi = Boolean(wishApiEndpoint);
   const wishPageSize = Number(config.blessing?.pageSize || 10);
   const replyPreviewSize = Number(config.blessing?.replyPreviewSize || 2);
   const replyPageSize = Number(config.blessing?.replyPageSize || 100);
-  let cloudbaseAppPromise = null;
   let audioController = null;
   let musicAutoplayAttempted = false;
   let musicAutoResumeBound = false;
@@ -84,74 +81,7 @@
     return data;
   }
 
-  async function getCloudbaseApp() {
-    if (!useCloudbaseApi) throw new Error("cloudbase-api-disabled");
-    if (!window.cloudbase) throw new Error("cloudbase-sdk-missing");
-    if (!cloudbaseAppPromise) {
-      cloudbaseAppPromise = (async () => {
-        const cloudApp = window.cloudbase.init({
-          env: cloudbaseApi.envId,
-          region: cloudbaseApi.region || "ap-shanghai",
-        });
-        if (cloudbaseApi.anonymousLogin !== false && cloudApp.auth) {
-          const auth = typeof cloudApp.auth === "function" ? cloudApp.auth({ persistence: "local" }) : cloudApp.auth;
-          if (typeof auth.getSession === "function" && typeof auth.signInAnonymously === "function") {
-            const sessionResult = await auth.getSession();
-            if (!sessionResult?.data?.session) {
-              const signInResult = await auth.signInAnonymously();
-              if (signInResult?.error) throw new Error(signInResult.error.message || "cloudbase-auth-failed");
-            }
-          } else if (typeof auth.hasLoginState === "function" && typeof auth.anonymousAuthProvider === "function") {
-            if (!auth.hasLoginState()) {
-              await auth.anonymousAuthProvider().signIn();
-            }
-          } else if (typeof auth.signInAnonymously === "function") {
-            const signInResult = await auth.signInAnonymously();
-            if (signInResult?.error) throw new Error(signInResult.error.message || "cloudbase-auth-failed");
-          }
-        }
-        return cloudApp;
-      })();
-    }
-    return cloudbaseAppPromise;
-  }
-
-  function parseCloudbaseResult(result) {
-    if (!result) return {};
-    if (typeof result.body === "string") {
-      const data = JSON.parse(result.body || "{}");
-      if (Number(result.statusCode || 200) >= 400) {
-        const error = new Error(data.error || "请求暂时无法完成");
-        error.status = Number(result.statusCode || 500);
-        throw error;
-      }
-      return data;
-    }
-    if (Number(result.statusCode || 200) >= 400) {
-      const error = new Error(result.error || "请求暂时无法完成");
-      error.status = Number(result.statusCode || 500);
-      throw error;
-    }
-    return result;
-  }
-
-  async function callCloudbaseApi(method, path, options = {}) {
-    const cloudApp = await getCloudbaseApp();
-    const response = await cloudApp.callFunction({
-      name: cloudbaseApi.functionName,
-      data: {
-        method,
-        path,
-        query: options.query || {},
-        body: options.body || {},
-      },
-      parse: true,
-    });
-    return parseCloudbaseResult(response.result);
-  }
-
   async function getRemoteJson(path, params = {}) {
-    if (useCloudbaseApi) return callCloudbaseApi("GET", path, { query: params });
     const response = await fetch(buildApiUrl(path, params), { headers: { Accept: "application/json" } });
     if (!response.ok) {
       const error = new Error("request-failed");
@@ -162,7 +92,6 @@
   }
 
   async function postRemoteJson(path, payload) {
-    if (useCloudbaseApi) return callCloudbaseApi("POST", path, { body: payload });
     return postJson(path, payload);
   }
 
@@ -1348,7 +1277,7 @@
   }
 
   async function lookupSeat(name, invitationCode) {
-    if (config.seatLookup.apiEndpoint || useCloudbaseApi) {
+    if (config.seatLookup.apiEndpoint) {
       return postRemoteJson(config.seatLookup.apiEndpoint || "seats", { name, invitationCode });
     }
 

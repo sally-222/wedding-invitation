@@ -57,6 +57,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
     builtStyles,
     builtApp,
     builtHtml,
+    cloudflareWorker,
     shareCard,
     wechatVerifyFile,
     wechatOfficialVerifyFile,
@@ -83,6 +84,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
       readFile(new URL("../dist/client/invitation/styles.css", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/app.js", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/index.html", import.meta.url), "utf8"),
+      readFile(new URL("../dist/client/_worker.js", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/assets/share-card.jpg", import.meta.url)),
       readFile(new URL("../dist/client/invitation/MP_verify_wNCDOk3cg9vK4RoU.txt", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/0f834a0421bc842f293b8a97398d1f4e.txt", import.meta.url), "utf8"),
@@ -105,6 +107,8 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.equal(builtStyles, sourceStyles);
   assert.equal(builtApp, sourceApp);
   assert.equal(builtHtml, sourceHtml);
+  assert.match(cloudflareWorker, /cloudflare:workers/);
+  assert.match(cloudflareWorker, /api\/wishes/);
   assert.equal(wechatVerifyFile.trim(), "wNCDOk3cg9vK4RoU");
   assert.equal(wechatOfficialVerifyFile.trim(), "817967ebb97b2bc3b95ffef2c9d8d9d8f1f6b8c6");
 
@@ -168,17 +172,18 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.doesNotMatch(sourceApp, /FRAME 06|FILM \/ 2026/);
   assert.match(sourceApp, /replyAnonymous/);
   assert.match(sourceApp, /lookupSeat/);
-  assert.match(sourceConfig, /apiEndpoint:\s*""/);
-  assert.match(sourceConfig, /functionName:\s*"weddingApiEvent"/);
+  assert.match(sourceConfig, /apiEndpoint:\s*"\/api\/wishes"/);
+  assert.match(sourceConfig, /apiEndpoint:\s*"\/api\/seats"/);
   assert.match(sourceConfig, /胡阳/);
   assert.match(sourceConfig, /728416/);
   assert.match(sourceConfig, /韩旭/);
   assert.match(sourceConfig, /593827/);
-  assert.match(sourceConfig, /envId:\s*"wedding-invitation-d8cw19676945d"/);
   assert.match(sourceConfig, /title:\s*"2026\.10\.6婚礼邀请函"/);
   assert.match(sourceConfig, /desc:\s*"李辰海&沙雷雨馨"/);
   assert.doesNotMatch(sourceConfig, /signPath:\s*"wechat-sign"/);
-  assert.match(sourceApp, /callFunction/);
+  assert.doesNotMatch(sourceHtml, /cloudbase\.full\.js/);
+  assert.doesNotMatch(sourceConfig, /cloudbaseApi/);
+  assert.doesNotMatch(sourceApp, /callFunction|cloudbase/);
   assert.match(sourceApp, /initBasicShareTitle/);
   assert.doesNotMatch(sourceApp, /updateAppMessageShareData/);
   assert.doesNotMatch(sourceApp, /updateTimelineShareData/);
