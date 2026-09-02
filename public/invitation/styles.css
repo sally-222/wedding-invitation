@@ -1418,11 +1418,6 @@ button.album-spread__page {
   line-height: 1.5;
 }
 
-.invite-code-field {
-  font: 400 23px/1 "Times New Roman", serif;
-  letter-spacing: 0;
-}
-
 .seat-help {
   min-height: 40px;
   padding: 8px 0;
@@ -1477,6 +1472,16 @@ button.album-spread__page {
   margin: 6px 0;
   color: var(--sage-dark);
   font: 400 42px/1 "Times New Roman", serif;
+}
+
+.seat-result__entry {
+  display: block;
+}
+
+.seat-result__entry + .seat-result__entry {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
 }
 
 .helper-text {

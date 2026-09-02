@@ -4,7 +4,7 @@ window.WEDDING_CONFIG = {
     bride: "沙雷雨馨",
     date: "2026.10.6",
     lunarDate: "农历八月廿六",
-    dateISO: "2026-10-06T11:30:00+08:00",
+    dateISO: "2026-10-06T11:18:00+08:00",
     venue: "中原油田宾馆（二所）",
     address: "河南省濮阳市华龙区中原油田宾馆",
     dressCode: "浅色低饱和度",
@@ -36,8 +36,7 @@ window.WEDDING_CONFIG = {
   },
   seatLookup: {
     apiEndpoint: "/api/seats",
-    invitationCodeLength: 6,
-    helpText: "婚礼前夕，我们将发送专属邀请码，届时即可查看您的座位安排。",
+    helpText: "请输入请柬上的宾客姓名，即可查看您的座位安排。",
   },
   share: {
     title: "2026.10.6婚礼邀请函",
@@ -47,8 +46,8 @@ window.WEDDING_CONFIG = {
   },
   schedule: [
     { time: "10:00", title: "迎宾", detail: "请您入席稍候，与我们共赴今日之约" },
-    { time: "11:30", title: "仪式开始（草坪仪式）", detail: "请提前入席，将手机调至静音" },
-    { time: "12:30", title: "婚礼午宴", detail: "一起举杯，慢慢享用午宴" },
+    { time: "11:18", title: "仪式开始（草坪仪式）", detail: "请提前入席，将手机调至静音" },
+    { time: "12:18", title: "婚礼午宴", detail: "一起举杯，慢慢享用午宴" },
   ],
   travelSpots: [],
   assetCredits: [
@@ -76,7 +75,7 @@ window.WEDDING_CONFIG = {
     },
   ],
   seatingGuests: [
-    { name: "胡阳", invitationCode: "728416", table: "A01", seatNote: "亲友席" },
-    { name: "韩旭", invitationCode: "593827", table: "A02", seatNote: "亲友席" },
+    { name: "胡阳", table: "A01", seatNote: "亲友席" },
+    { name: "韩旭", table: "A02", seatNote: "亲友席" },
   ],
 };

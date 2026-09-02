@@ -36,7 +36,7 @@ export const seatingGuests = sqliteTable(
     id: text("id").primaryKey(),
     name: text("name").notNull(),
     normalizedName: text("normalized_name").notNull(),
-    invitationCode: text("invitation_code").notNull(),
+    invitationCode: text("invitation_code").notNull().default(""),
     tableName: text("table_name").notNull(),
     seatNote: text("seat_note").notNull().default(""),
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),

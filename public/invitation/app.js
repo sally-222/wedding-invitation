@@ -388,7 +388,6 @@
   }
 
   function renderSeats() {
-    const codeLength = config.seatLookup.invitationCodeLength;
     return `
       <section id="seats" class="view" data-view>
         <div class="page page--tinted page--seats">
@@ -402,13 +401,9 @@
               Guest name
               <input class="field" name="guestName" type="text" maxlength="18" placeholder="宾客姓名" autocomplete="name" />
             </label>
-            <label class="field-label">
-              Invitation code
-              <input class="field invite-code-field" name="invitationCode" type="text" inputmode="numeric" maxlength="${escapeHtml(codeLength)}" placeholder="${escapeHtml(codeLength)}位专属邀请码" autocomplete="one-time-code" />
-            </label>
             <button class="button button--wide" type="submit">查看我的席位</button>
             <p class="helper-text">${escapeHtml(config.seatLookup.helpText)}</p>
-            <button class="seat-help" id="seatHelpButton" type="button">没有找到邀请码？联系新人</button>
+            <button class="seat-help" id="seatHelpButton" type="button">如需帮助，请联系新人</button>
           </form>
           <div id="seatResult" aria-live="polite"></div>
         </div>
@@ -1285,69 +1280,55 @@
       .toLocaleLowerCase("zh-CN");
   }
 
-  function normalizeInvitationCode(value) {
-    return String(value || "")
-      .normalize("NFKC")
-      .replace(/[\s-]+/g, "")
-      .toUpperCase();
-  }
-
-  async function lookupSeat(name, invitationCode) {
+  async function lookupSeat(name) {
     if (config.seatLookup.apiEndpoint) {
-      return postRemoteJson(config.seatLookup.apiEndpoint || "seats", { name, invitationCode });
+      return postRemoteJson(config.seatLookup.apiEndpoint || "seats", { name });
     }
 
-    const guest = config.seatingGuests.find(
-      (item) =>
-        normalizeGuestName(item.name) === normalizeGuestName(name) &&
-        normalizeInvitationCode(item.invitationCode) === invitationCode,
-    );
-    return guest ? { found: true, guest } : { found: false };
+    const guests = config.seatingGuests.filter((item) => normalizeGuestName(item.name) === normalizeGuestName(name));
+    return guests.length ? { found: true, guests, guest: guests[0] } : { found: false };
   }
 
   function bindSeats() {
     const form = document.querySelector("#seatForm");
     const result = document.querySelector("#seatResult");
-    const codeInput = form.elements.namedItem("invitationCode");
     const submitButton = form.querySelector('button[type="submit"]');
-    const codeLength = config.seatLookup.invitationCodeLength;
 
-    codeInput.addEventListener("input", () => {
-      codeInput.value = normalizeInvitationCode(codeInput.value).slice(0, codeLength);
-    });
     document.querySelector("#seatHelpButton").addEventListener("click", contactNewlyweds);
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const formData = new FormData(form);
       const name = String(formData.get("guestName") || "").trim();
-      const invitationCode = normalizeInvitationCode(formData.get("invitationCode"));
 
       if (!name) {
         result.innerHTML = '<div class="seat-result">请填写请柬上的宾客姓名。</div>';
-        return;
-      }
-      if (!new RegExp(`^[A-Z0-9]{${codeLength}}$`).test(invitationCode)) {
-        result.innerHTML = `<div class="seat-result">请输入完整的${escapeHtml(codeLength)}位邀请码。</div>`;
         return;
       }
 
       submitButton.disabled = true;
       submitButton.textContent = "正在查询";
       try {
-        const lookupResult = await lookupSeat(name, invitationCode);
+        const lookupResult = await lookupSeat(name);
         if (!lookupResult.found) {
-          result.innerHTML =
-            '<div class="seat-result">姓名或邀请码不匹配，请检查电子请柬后重新输入。</div>';
+          result.innerHTML = '<div class="seat-result">暂未查询到席位，请核对姓名或联系新人。</div>';
           return;
         }
 
-        const guest = lookupResult.guest || lookupResult;
+        const guests = lookupResult.guests || [lookupResult.guest || lookupResult];
         result.innerHTML = `
           <div class="seat-result">
-            ${escapeHtml(guest.name || name)}，您的桌号是<br />
-            <strong>${escapeHtml(guest.table)}</strong><br />
-            ${escapeHtml(guest.seatNote || "")}
+            ${guests.length > 1 ? "为您找到以下席位：" : `${escapeHtml(guests[0].name || name)}，您的桌号是`}<br />
+            ${guests
+              .map(
+                (guest) => `
+                  <span class="seat-result__entry">
+                    <strong>${escapeHtml(guest.table)}</strong>
+                    ${escapeHtml(guest.name || name)}${guest.seatNote ? ` · ${escapeHtml(guest.seatNote)}` : ""}
+                  </span>
+                `,
+              )
+              .join("")}
           </div>
         `;
       } catch {
