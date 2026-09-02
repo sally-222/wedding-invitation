@@ -52,6 +52,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
     sourceStyles,
     sourceApp,
     sourceHtml,
+    wranglerConfig,
     builtConfig,
     builtTravel,
     builtStyles,
@@ -80,6 +81,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
       readFile(new URL("../public/invitation/styles.css", import.meta.url), "utf8"),
       readFile(new URL("../public/invitation/app.js", import.meta.url), "utf8"),
       readFile(new URL("../public/invitation/index.html", import.meta.url), "utf8"),
+      readFile(new URL("../wrangler.toml", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/config.js", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/travel-data.js", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/styles.css", import.meta.url), "utf8"),
@@ -109,6 +111,10 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.equal(builtStyles, sourceStyles);
   assert.equal(builtApp, sourceApp);
   assert.equal(builtHtml, sourceHtml);
+  assert.match(wranglerConfig, /\[\[d1_databases\]\]/);
+  assert.match(wranglerConfig, /binding\s*=\s*"DB"/);
+  assert.match(wranglerConfig, /database_name\s*=\s*"wedding-invitation-db"/);
+  assert.match(wranglerConfig, /database_id\s*=\s*"9576ce12-b44c-4d15-a116-d731ea1c29c6"/);
   assert.match(cloudflareWorker, /cloudflare:workers/);
   assert.match(cloudflareWorker, /api\/wishes/);
   assert.equal(cloudflareEntry, cloudflareWorker);
