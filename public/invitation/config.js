@@ -45,7 +45,7 @@ window.WEDDING_CONFIG = {
     imgUrl: "https://wedding-invitation.pages.dev/assets/share-card.jpg",
   },
   schedule: [
-    { time: "10:00", title: "迎宾", detail: "请您入席稍候，与我们共赴今日之约" },
+    { time: "10:00", title: "迎宾", detail: "与亲友相见、聊天、拍照，把这段等待也留成纪念。" },
     { time: "11:18", title: "仪式开始（草坪仪式）", detail: "请提前入席，将手机调至静音" },
     { time: "12:18", title: "婚礼午宴", detail: "一起举杯，慢慢享用午宴" },
   ],

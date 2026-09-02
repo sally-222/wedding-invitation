@@ -145,7 +145,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceConfig, /heroImage:\s*"\.\/assets\/wedding-hero\.jpg"/);
   assert.match(sourceConfig, /dateISO:\s*"2026-10-06T11:18:00\+08:00"/);
   assert.match(sourceConfig, /venue:\s*"中原油田宾馆（二所）"/);
-  assert.match(sourceConfig, /time:\s*"10:00"[\s\S]*title:\s*"迎宾"[\s\S]*请您入席稍候/);
+  assert.match(sourceConfig, /time:\s*"10:00"[\s\S]*title:\s*"迎宾"[\s\S]*与亲友相见、聊天、拍照/);
   assert.match(sourceConfig, /time:\s*"11:18"[\s\S]*title:\s*"仪式开始（草坪仪式）"/);
   assert.match(sourceConfig, /time:\s*"12:18"[\s\S]*title:\s*"婚礼午宴"/);
   assert.match(sourceStyles, /--canvas:\s*#d7e3ee/);
