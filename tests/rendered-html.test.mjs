@@ -52,15 +52,20 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
     sourceStyles,
     sourceApp,
     sourceHtml,
+    sourceRootHtml,
+    sourceRoutes,
     wranglerConfig,
     builtConfig,
     builtTravel,
     builtStyles,
     builtApp,
     builtHtml,
+    builtRootHtml,
+    builtRoutes,
     cloudflareWorker,
     cloudflareEntry,
     shareCard,
+    rootShareCard,
     wechatVerifyFile,
     wechatOfficialVerifyFile,
     hero,
@@ -81,15 +86,20 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
       readFile(new URL("../public/invitation/styles.css", import.meta.url), "utf8"),
       readFile(new URL("../public/invitation/app.js", import.meta.url), "utf8"),
       readFile(new URL("../public/invitation/index.html", import.meta.url), "utf8"),
+      readFile(new URL("../public/index.html", import.meta.url), "utf8"),
+      readFile(new URL("../public/_routes.json", import.meta.url), "utf8"),
       readFile(new URL("../wrangler.toml", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/config.js", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/travel-data.js", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/styles.css", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/app.js", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/index.html", import.meta.url), "utf8"),
+      readFile(new URL("../dist/client/index.html", import.meta.url), "utf8"),
+      readFile(new URL("../dist/client/_routes.json", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/_worker.js", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/index.js", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/assets/share-card.jpg", import.meta.url)),
+      readFile(new URL("../dist/client/assets/share-card.jpg", import.meta.url)),
       readFile(new URL("../dist/client/invitation/MP_verify_wNCDOk3cg9vK4RoU.txt", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/0f834a0421bc842f293b8a97398d1f4e.txt", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/assets/wedding-hero.jpg", import.meta.url)),
@@ -111,6 +121,10 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.equal(builtStyles, sourceStyles);
   assert.equal(builtApp, sourceApp);
   assert.equal(builtHtml, sourceHtml);
+  assert.equal(builtRootHtml, sourceRootHtml);
+  assert.equal(builtRoutes, sourceRoutes);
+  assert.match(sourceRoutes, /"include":\s*\[\s*"\/api\/\*"\s*\]/);
+  assert.match(sourceRoutes, /"exclude":\s*\[\s*\]/);
   assert.match(wranglerConfig, /\[\[d1_databases\]\]/);
   assert.match(wranglerConfig, /binding\s*=\s*"DB"/);
   assert.match(wranglerConfig, /database_name\s*=\s*"wedding-invitation-db"/);
@@ -124,7 +138,9 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceHtml, /<title>2026\.10\.6婚礼邀请函<\/title>/);
   assert.match(sourceHtml, /content="李辰海&沙雷雨馨"/);
   assert.match(sourceHtml, /property="og:url" content="https:\/\/wedding-invitation\.pages\.dev\/invitation\/index\.html"/);
-  assert.match(sourceHtml, /property="og:image" content="https:\/\/wedding-invitation\.pages\.dev\/invitation\/assets\/share-card\.jpg"/);
+  assert.match(sourceHtml, /property="og:image" content="https:\/\/wedding-invitation\.pages\.dev\/assets\/share-card\.jpg"/);
+  assert.match(sourceRootHtml, /property="og:image" content="https:\/\/wedding-invitation\.pages\.dev\/assets\/share-card\.jpg"/);
+  assert.match(sourceRootHtml, /李辰海&沙雷雨馨/);
   assert.doesNotMatch(sourceHtml, /jweixin-1\.6\.0\.js/);
   assert.match(sourceConfig, /heroImage:\s*"\.\/assets\/wedding-hero\.jpg"/);
   assert.match(sourceConfig, /dateISO:\s*"2026-10-06T11:18:00\+08:00"/);
@@ -202,7 +218,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceConfig, /title:\s*"2026\.10\.6婚礼邀请函"/);
   assert.match(sourceConfig, /desc:\s*"李辰海&沙雷雨馨"/);
   assert.match(sourceConfig, /link:\s*"https:\/\/wedding-invitation\.pages\.dev\/invitation\/index\.html"/);
-  assert.match(sourceConfig, /imgUrl:\s*"https:\/\/wedding-invitation\.pages\.dev\/invitation\/assets\/share-card\.jpg"/);
+  assert.match(sourceConfig, /imgUrl:\s*"https:\/\/wedding-invitation\.pages\.dev\/assets\/share-card\.jpg"/);
   assert.doesNotMatch(sourceConfig, /signPath:\s*"wechat-sign"/);
   assert.doesNotMatch(sourceHtml, /cloudbase\.full\.js/);
   assert.doesNotMatch(sourceConfig, /cloudbaseApi/);
@@ -253,6 +269,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceApp, /被收藏，\\n有些瞬间/);
   assert.match(sourceApp, /如果有一句话想对我们说/);
   assert.match(sourceApp, /这里吧。\\n谢谢您/);
+  assert.doesNotMatch(sourceApp, /guest\.name \|\| name/);
   assert.doesNotMatch(sourceApp, /婚礼前夕，我们将发送专属邀请码/);
   assert.doesNotMatch(sourceConfig, /婚礼前夕，我们将发送专属邀请码/);
   assert.doesNotMatch(sourceConfig, /邀请码会随电子请柬/);
@@ -276,6 +293,9 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.equal(shareCard[1], 0xd8);
   assert.ok(shareCard.byteLength > 20_000);
   assert.ok(shareCard.byteLength < 500_000);
+  assert.equal(rootShareCard[0], 0xff);
+  assert.equal(rootShareCard[1], 0xd8);
+  assert.equal(rootShareCard.byteLength, shareCard.byteLength);
   for (const image of [guoliangpi, zhuangmo, yangroutang]) {
     assert.equal(image[0], 0xff);
     assert.equal(image[1], 0xd8);

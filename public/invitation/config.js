@@ -42,7 +42,7 @@ window.WEDDING_CONFIG = {
     title: "2026.10.6婚礼邀请函",
     desc: "李辰海&沙雷雨馨",
     link: "https://wedding-invitation.pages.dev/invitation/index.html",
-    imgUrl: "https://wedding-invitation.pages.dev/invitation/assets/share-card.jpg",
+    imgUrl: "https://wedding-invitation.pages.dev/assets/share-card.jpg",
   },
   schedule: [
     { time: "10:00", title: "迎宾", detail: "请您入席稍候，与我们共赴今日之约" },

@@ -1324,7 +1324,7 @@
                 (guest) => `
                   <span class="seat-result__entry">
                     <strong>${escapeHtml(guest.table)}</strong>
-                    ${escapeHtml(guest.name || name)}${guest.seatNote ? ` · ${escapeHtml(guest.seatNote)}` : ""}
+                    ${guest.seatNote ? escapeHtml(guest.seatNote) : ""}
                   </span>
                 `,
               )
