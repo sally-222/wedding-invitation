@@ -1,5 +1,5 @@
 window.WEDDING_CONFIG = {
-  assetVersion: "20260903-welcome-copy",
+  assetVersion: "20260903-travel-typo",
   couple: {
     groom: "李辰海",
     bride: "沙雷雨馨",

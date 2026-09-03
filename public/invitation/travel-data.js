@@ -237,7 +237,7 @@ window.WEDDING_TRAVEL_DATA = {
       sort: 31,
       category: "特色小吃",
       name: "体育场小吃夜市",
-      description: "濮阳最大夜市，忙吃不踩雷。",
+      description: "濮阳最大夜市，盲吃不踩雷。",
       image: "./assets/travel/travel-031.jpg",
       dianpingUrl: "",
     },
