@@ -234,6 +234,9 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceApp, /renderWishPagination/);
   assert.match(sourceApp, /visibleWishPages/);
   assert.match(sourceApp, /收起回复/);
+  assert.match(sourceApp, /亲友回应/);
+  assert.match(sourceStyles, /\.reply-list\s*\{[\s\S]*background:\s*rgba\(215, 227, 238, 0\.24\)/);
+  assert.match(sourceStyles, /\.reply-list\s*\{[\s\S]*border-left:\s*2px solid rgba\(86, 105, 125, 0\.34\)/);
   assert.match(sourceApp, /data-wish-page/);
   assert.match(sourceApp, /reply-expand/);
   assert.match(sourceApp, /loadFullReplies/);

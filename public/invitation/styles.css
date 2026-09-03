@@ -1272,21 +1272,37 @@ button.album-spread__page {
 
 .reply-list {
   display: grid;
-  gap: 9px;
-  margin-top: 14px;
-  padding: 12px 0 0 15px;
-  border-top: 1px dotted var(--line-strong);
-  border-left: 1px solid var(--line);
+  gap: 0;
+  margin: 16px 0 0 10px;
+  padding: 12px 12px 10px 14px;
+  border-left: 2px solid rgba(86, 105, 125, 0.34);
+  background: rgba(215, 227, 238, 0.24);
+  box-shadow: inset 0 0 0 1px rgba(86, 105, 125, 0.08);
+}
+
+.reply-list__label {
+  margin: 0 0 7px;
+  color: rgba(86, 105, 125, 0.82);
+  font-size: 10px;
+  line-height: 1.2;
+  letter-spacing: 0.18em;
 }
 
 .reply {
-  padding-bottom: 7px;
+  padding: 8px 0 9px;
+  border-top: 1px solid rgba(86, 105, 125, 0.14);
+}
+
+.reply-list__label + .reply {
+  padding-top: 0;
+  border-top: 0;
 }
 
 .reply-expand {
   min-height: 30px;
-  padding: 4px 0 0;
+  padding: 8px 0 0;
   border: 0;
+  border-top: 1px solid rgba(86, 105, 125, 0.14);
   background: transparent;
   color: var(--sage-dark);
   font-size: 12px;
@@ -1296,6 +1312,7 @@ button.album-spread__page {
 }
 
 .reply__name {
+  color: rgba(86, 105, 125, 0.9);
   font-size: 11px;
 }
 

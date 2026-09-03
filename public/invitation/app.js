@@ -1030,7 +1030,7 @@
       replyTotal > replyPreviewSize
         ? `<button class="reply-expand" type="button" data-wish-replies="${escapeHtml(wish.id)}" data-reply-expanded="${isExpanded ? "true" : "false"}">${isExpanded ? "收起回复" : `查看全部 ${escapeHtml(replyTotal)} 条回复`}</button>`
         : "";
-    return `<div class="reply-list">${renderReplyRows(replies)}${toggleButton}</div>`;
+    return `<div class="reply-list" aria-label="这条祝福的回复"><p class="reply-list__label">亲友回应</p>${renderReplyRows(replies)}${toggleButton}</div>`;
   }
 
   function visibleWishPages(totalPages, currentPage) {
