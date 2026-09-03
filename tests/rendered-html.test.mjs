@@ -136,7 +136,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.equal(wechatOfficialVerifyFile.trim(), "817967ebb97b2bc3b95ffef2c9d8d9d8f1f6b8c6");
 
   assert.match(sourceHtml, /<title>2026\.10\.6婚礼邀请函<\/title>/);
-  assert.match(sourceHtml, /app\.js\?v=20260903-wishes-demo/);
+  assert.match(sourceHtml, /app\.js\?v=20260903-travel-images/);
   assert.match(sourceHtml, /content="李辰海&沙雷雨馨"/);
   assert.match(sourceHtml, /property="og:url" content="https:\/\/wedding-invitation\.pages\.dev\/invitation\/index\.html"/);
   assert.match(sourceHtml, /property="og:image" content="https:\/\/mmbiz\.qpic\.cn\/mmbiz_jpg\/p1q58J1IVH5h1jyvzma5wcRcoDXhJskxtyqrCicWce4RpgrwQJjEyMibcBveofSZXYXFiaz0QI7OgcGtmXRjptz1de0lbkvsuI0KJ5xyRibcoDk\/640\?wx_fmt=jpeg&amp;from=appmsg"/);
@@ -285,6 +285,10 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.doesNotMatch(sourceApp, /欢迎赴宴，请在这里查看您的座位/);
   assert.match(sourceApp, /data-travel-filter/);
   assert.match(sourceStyles, /\.travel-card\[hidden\]/);
+  assert.doesNotMatch(sourceApp, /链接待补充/);
+  assert.match(sourceApp, /const linkLabel = url/);
+  assert.match(sourceStyles, /\.travel-card__image img\s*\{[^}]*object-fit:\s*contain;[^}]*\}/);
+  assert.doesNotMatch(sourceStyles, /\.travel-card__image img\s*\{[^}]*filter:/);
   assert.match(sourceTravel, /categories:\s*\["暖胃正餐", "濮阳风味", "特色小吃", "新华街风味"\]/);
   assert.match(sourceTravel, /三强鸽子/);
   assert.match(sourceTravel, /方中山胡辣汤/);

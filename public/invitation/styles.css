@@ -658,8 +658,7 @@ button {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  filter: saturate(0.82) contrast(0.96) brightness(1.02);
+  object-fit: contain;
 }
 
 .travel-card__image.is-placeholder::before {

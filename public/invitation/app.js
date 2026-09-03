@@ -276,13 +276,14 @@
           ? `<div class="travel-card__image"><img src="${escapeHtml(spot.image)}" alt="${escapeHtml(spot.name)}" loading="lazy" /></div>`
           : `<div class="travel-card__image is-placeholder" data-mark="${escapeHtml(spot.name.slice(0, 1))}" style="background:${escapeHtml(spot.color)}" aria-hidden="true"></div>`;
         const url = spot.dianpingUrl || spot.link || "";
+        const linkLabel = url ? '<span class="travel-card__link">大众点评 ↗</span>' : "";
         const cardBody = `
           ${image}
           <div class="travel-card__body">
             <span class="travel-card__category">${String(index + 1).padStart(2, "0")} · ${escapeHtml(spot.category)}</span>
             <h2 class="travel-card__name">${escapeHtml(spot.name)}</h2>
             <p class="travel-card__desc">${escapeHtml(spot.description)}</p>
-            <span class="travel-card__link">${url ? "大众点评 ↗" : "链接待补充"}</span>
+            ${linkLabel}
           </div>
         `;
         if (!url) {
