@@ -229,12 +229,15 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceConfig, /pageSize:\s*10/);
   assert.match(sourceConfig, /replyPreviewSize:\s*2/);
   assert.match(sourceApp, /loadRemoteWishes/);
-  assert.match(sourceApp, /if \(hasRemoteApi\) return \[\]/);
+  assert.match(sourceApp, /isLocalPreview/);
+  assert.match(sourceApp, /Boolean\(wishApiEndpoint\) && !isLocalPreview/);
   assert.match(sourceApp, /当前预览未连接数据库/);
   assert.match(sourceApp, /renderWishPagination/);
   assert.match(sourceApp, /visibleWishPages/);
   assert.match(sourceApp, /收起回复/);
   assert.match(sourceApp, /亲友回应/);
+  assert.match(sourceConfig, /十月见，我们一定准时到/);
+  assert.match(sourceConfig, /已经开始期待那天了/);
   assert.match(sourceStyles, /\.reply-list\s*\{[\s\S]*background:\s*rgba\(215, 227, 238, 0\.24\)/);
   assert.match(sourceStyles, /\.reply-list\s*\{[\s\S]*border-left:\s*2px solid rgba\(86, 105, 125, 0\.34\)/);
   assert.match(sourceApp, /data-wish-page/);

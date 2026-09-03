@@ -4,7 +4,8 @@
   const storageKey = "wedding-wishes-v2";
   const seedRepliesStorageKey = "wedding-seed-replies-v1";
   const wishApiEndpoint = config.blessing?.apiEndpoint || "";
-  const hasRemoteApi = Boolean(wishApiEndpoint);
+  const isLocalPreview = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+  const hasRemoteApi = Boolean(wishApiEndpoint) && !isLocalPreview;
   const wishPageSize = Number(config.blessing?.pageSize || 10);
   const replyPreviewSize = Number(config.blessing?.replyPreviewSize || 2);
   const replyPageSize = Number(config.blessing?.replyPageSize || 100);
@@ -57,7 +58,7 @@
 
   function allWishes() {
     if (Array.isArray(remoteWishes)) return remoteWishes;
-    if (hasRemoteApi) return [];
+    if (Boolean(wishApiEndpoint) && !isLocalPreview) return [];
     const storedSeedReplies = getStoredSeedReplies();
     const seeds = config.blessingSeed.map((wish) => ({
       ...wish,
