@@ -134,7 +134,7 @@ window.WEDDING_TRAVEL_DATA = {
       category: "特色小吃",
       name: "马家羊肉汤",
       description: "濮式特色羊肉汤，汤鲜肉嫩，早餐必吃。",
-      image: "",
+      image: "./assets/travel/travel-018.jpg",
       dianpingUrl: "https://www.dianping.com/shop/H8FSMyDSZ2xkpKne",
     },
     {

@@ -283,6 +283,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceTravel, /体育场小吃夜市/);
   assert.match(sourceTravel, /www\.dianping\.com\/shop\/l2UIRE49ap3TeTDa/);
   assert.match(sourceTravel, /\.\/assets\/travel\/travel-001\.jpg/);
+  assert.match(sourceTravel, /马家羊肉汤[\s\S]*\.\/assets\/travel\/travel-018\.jpg/);
   assert.match(sourceTravel, /新华街砂锅面[\s\S]*dianpingUrl:\s*""/);
   await assert.rejects(access(new URL("../.wrangler/deploy/config.json", import.meta.url)), { code: "ENOENT" });
 
