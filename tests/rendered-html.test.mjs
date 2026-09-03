@@ -136,7 +136,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.equal(wechatOfficialVerifyFile.trim(), "817967ebb97b2bc3b95ffef2c9d8d9d8f1f6b8c6");
 
   assert.match(sourceHtml, /<title>2026\.10\.6婚礼邀请函<\/title>/);
-  assert.match(sourceHtml, /app\.js\?v=20260903-travel-images/);
+  assert.match(sourceHtml, /app\.js\?v=20260903-seat-photo/);
   assert.match(sourceHtml, /content="李辰海&沙雷雨馨"/);
   assert.match(sourceHtml, /property="og:url" content="https:\/\/wedding-invitation\.pages\.dev\/invitation\/index\.html"/);
   assert.match(sourceHtml, /property="og:image" content="https:\/\/mmbiz\.qpic\.cn\/mmbiz_jpg\/p1q58J1IVH5h1jyvzma5wcRcoDXhJskxtyqrCicWce4RpgrwQJjEyMibcBveofSZXYXFiaz0QI7OgcGtmXRjptz1de0lbkvsuI0KJ5xyRibcoDk\/640\?wx_fmt=jpeg&amp;from=appmsg"/);
@@ -190,6 +190,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceConfig, /groomPhone:\s*"13164039297"/);
   assert.match(sourceConfig, /bridePhone:\s*"16639311246"/);
   assert.match(sourceConfig, /audioUrl:\s*"\.\/assets\/audio\/a-thousand-years-lullaby\.mp3"/);
+  assert.match(sourceConfig, /assetVersion:\s*"20260903-seat-photo"/);
   assert.match(sourceConfig, /volume:\s*0\.72/);
   assert.match(sourceApp, /id="musicButton"/);
   assert.match(sourceApp, /attemptAutoplayMusic/);
@@ -210,7 +211,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceConfig, /apiEndpoint:\s*"\/api\/wishes"/);
   assert.match(sourceConfig, /apiEndpoint:\s*"\/api\/seats"/);
   assert.match(sourceConfig, /座位信息将在婚礼前夕更新/);
-  assert.match(sourceConfig, /请输入请柬上的宾客姓名查询/);
+  assert.match(sourceConfig, /届时请输您的姓名查询/);
   assert.match(sourceConfig, /胡阳/);
   assert.match(sourceConfig, /韩旭/);
   assert.doesNotMatch(sourceConfig, /invitationCodeLength|728416|593827|专属邀请码/);
@@ -284,6 +285,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.doesNotMatch(sourceApp, /演示查询/);
   assert.doesNotMatch(sourceApp, /欢迎赴宴，请在这里查看您的座位/);
   assert.match(sourceApp, /data-travel-filter/);
+  assert.match(sourceApp, /versionAssetUrl\(spot\.image\)/);
   assert.match(sourceStyles, /\.travel-card\[hidden\]/);
   assert.doesNotMatch(sourceApp, /链接待补充/);
   assert.match(sourceApp, /const linkLabel = url/);

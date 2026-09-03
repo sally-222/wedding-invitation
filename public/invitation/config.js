@@ -1,4 +1,5 @@
 window.WEDDING_CONFIG = {
+  assetVersion: "20260903-seat-photo",
   couple: {
     groom: "李辰海",
     bride: "沙雷雨馨",
@@ -36,7 +37,7 @@ window.WEDDING_CONFIG = {
   },
   seatLookup: {
     apiEndpoint: "/api/seats",
-    helpText: "座位信息将在婚礼前夕更新，届时请输入请柬上的宾客姓名查询。",
+    helpText: "座位信息将在婚礼前夕更新，届时请输您的姓名查询。",
   },
   share: {
     title: "2026.10.6婚礼邀请函",

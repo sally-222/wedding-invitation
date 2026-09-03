@@ -1,6 +1,7 @@
 (function () {
   const config = window.WEDDING_CONFIG;
   const app = document.querySelector("#app");
+  const assetVersion = config.assetVersion || "";
   const storageKey = "wedding-wishes-v2";
   const seedRepliesStorageKey = "wedding-seed-replies-v1";
   const wishApiEndpoint = config.blessing?.apiEndpoint || "";
@@ -28,6 +29,12 @@
       .replaceAll(">", "&gt;")
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
+  }
+
+  function versionAssetUrl(value) {
+    const url = String(value || "");
+    if (!assetVersion || !url || /^(https?:|data:|blob:)/.test(url)) return url;
+    return `${url}${url.includes("?") ? "&" : "?"}v=${encodeURIComponent(assetVersion)}`;
   }
 
   function getStoredWishes() {
@@ -273,7 +280,7 @@
     const cards = spots
       .map((spot, index) => {
         const image = spot.image
-          ? `<div class="travel-card__image"><img src="${escapeHtml(spot.image)}" alt="${escapeHtml(spot.name)}" loading="lazy" /></div>`
+          ? `<div class="travel-card__image"><img src="${escapeHtml(versionAssetUrl(spot.image))}" alt="${escapeHtml(spot.name)}" loading="lazy" /></div>`
           : `<div class="travel-card__image is-placeholder" data-mark="${escapeHtml(spot.name.slice(0, 1))}" style="background:${escapeHtml(spot.color)}" aria-hidden="true"></div>`;
         const url = spot.dianpingUrl || spot.link || "";
         const linkLabel = url ? '<span class="travel-card__link">大众点评 ↗</span>' : "";
