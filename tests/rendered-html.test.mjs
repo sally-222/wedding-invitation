@@ -136,6 +136,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.equal(wechatOfficialVerifyFile.trim(), "817967ebb97b2bc3b95ffef2c9d8d9d8f1f6b8c6");
 
   assert.match(sourceHtml, /<title>2026\.10\.6婚礼邀请函<\/title>/);
+  assert.match(sourceHtml, /app\.js\?v=20260903-wishes-demo/);
   assert.match(sourceHtml, /content="李辰海&沙雷雨馨"/);
   assert.match(sourceHtml, /property="og:url" content="https:\/\/wedding-invitation\.pages\.dev\/invitation\/index\.html"/);
   assert.match(sourceHtml, /property="og:image" content="https:\/\/mmbiz\.qpic\.cn\/mmbiz_jpg\/p1q58J1IVH5h1jyvzma5wcRcoDXhJskxtyqrCicWce4RpgrwQJjEyMibcBveofSZXYXFiaz0QI7OgcGtmXRjptz1de0lbkvsuI0KJ5xyRibcoDk\/640\?wx_fmt=jpeg&amp;from=appmsg"/);
