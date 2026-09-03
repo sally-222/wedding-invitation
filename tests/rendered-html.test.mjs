@@ -69,9 +69,9 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
     wechatVerifyFile,
     wechatOfficialVerifyFile,
     hero,
-    guoliangpi,
-    zhuangmo,
-    yangroutang,
+    travelFirst,
+    travelMiddle,
+    travelLast,
     music,
     wishRoute,
     replyRoute,
@@ -103,9 +103,9 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
       readFile(new URL("../dist/client/invitation/MP_verify_wNCDOk3cg9vK4RoU.txt", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/0f834a0421bc842f293b8a97398d1f4e.txt", import.meta.url), "utf8"),
       readFile(new URL("../dist/client/invitation/assets/wedding-hero.jpg", import.meta.url)),
-      readFile(new URL("../dist/client/invitation/assets/travel/guoliangpi.jpg", import.meta.url)),
-      readFile(new URL("../dist/client/invitation/assets/travel/zhuangmo.jpg", import.meta.url)),
-      readFile(new URL("../dist/client/invitation/assets/travel/yangroutang.jpg", import.meta.url)),
+      readFile(new URL("../dist/client/invitation/assets/travel/travel-001.jpg", import.meta.url)),
+      readFile(new URL("../dist/client/invitation/assets/travel/travel-015.jpg", import.meta.url)),
+      readFile(new URL("../dist/client/invitation/assets/travel/travel-031.jpg", import.meta.url)),
       readFile(new URL("../dist/client/invitation/assets/audio/a-thousand-years-lullaby.mp3", import.meta.url)),
       readFile(new URL("../app/api/wishes/route.ts", import.meta.url), "utf8"),
       readFile(new URL("../app/api/wishes/[id]/replies/route.ts", import.meta.url), "utf8"),
@@ -277,12 +277,13 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.doesNotMatch(sourceApp, /欢迎赴宴，请在这里查看您的座位/);
   assert.match(sourceApp, /data-travel-filter/);
   assert.match(sourceStyles, /\.travel-card\[hidden\]/);
-  assert.match(sourceTravel, /categories:\s*\["地方小吃", "濮阳风味", "暖胃正餐"\]/);
-  assert.match(sourceTravel, /濮阳裹凉皮/);
-  assert.match(sourceTravel, /壮馍/);
-  assert.match(sourceTravel, /羊肉汤/);
-  assert.match(sourceTravel, /m\.dianping\.com\/shopinfo\/G9oocPoIuMTNrB5m/);
-  assert.match(sourceTravel, /\.\/assets\/travel\/guoliangpi\.jpg/);
+  assert.match(sourceTravel, /categories:\s*\["暖胃正餐", "濮阳风味", "特色小吃", "新华街风味"\]/);
+  assert.match(sourceTravel, /三强鸽子/);
+  assert.match(sourceTravel, /方中山胡辣汤/);
+  assert.match(sourceTravel, /体育场小吃夜市/);
+  assert.match(sourceTravel, /www\.dianping\.com\/shop\/l2UIRE49ap3TeTDa/);
+  assert.match(sourceTravel, /\.\/assets\/travel\/travel-001\.jpg/);
+  assert.match(sourceTravel, /新华街砂锅面[\s\S]*dianpingUrl:\s*""/);
   await assert.rejects(access(new URL("../.wrangler/deploy/config.json", import.meta.url)), { code: "ENOENT" });
 
   assert.equal(hero[0], 0xff);
@@ -296,7 +297,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.equal(rootShareCard[0], 0xff);
   assert.equal(rootShareCard[1], 0xd8);
   assert.equal(rootShareCard.byteLength, shareCard.byteLength);
-  for (const image of [guoliangpi, zhuangmo, yangroutang]) {
+  for (const image of [travelFirst, travelMiddle, travelLast]) {
     assert.equal(image[0], 0xff);
     assert.equal(image[1], 0xd8);
     assert.ok(image.byteLength > 40_000);
