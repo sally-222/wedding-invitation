@@ -36,7 +36,7 @@ window.WEDDING_CONFIG = {
   },
   seatLookup: {
     apiEndpoint: "/api/seats",
-    helpText: "请输入请柬上的宾客姓名，即可查看您的座位安排。",
+    helpText: "座位信息将在婚礼前夕更新，届时请输入请柬上的宾客姓名查询。",
   },
   share: {
     title: "2026.10.6婚礼邀请函",

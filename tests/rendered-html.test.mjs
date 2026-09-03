@@ -209,7 +209,8 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceApp, /lookupSeat/);
   assert.match(sourceConfig, /apiEndpoint:\s*"\/api\/wishes"/);
   assert.match(sourceConfig, /apiEndpoint:\s*"\/api\/seats"/);
-  assert.match(sourceConfig, /请输入请柬上的宾客姓名/);
+  assert.match(sourceConfig, /座位信息将在婚礼前夕更新/);
+  assert.match(sourceConfig, /请输入请柬上的宾客姓名查询/);
   assert.match(sourceConfig, /胡阳/);
   assert.match(sourceConfig, /韩旭/);
   assert.doesNotMatch(sourceConfig, /invitationCodeLength|728416|593827|专属邀请码/);
