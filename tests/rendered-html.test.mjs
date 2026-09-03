@@ -136,7 +136,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.equal(wechatOfficialVerifyFile.trim(), "817967ebb97b2bc3b95ffef2c9d8d9d8f1f6b8c6");
 
   assert.match(sourceHtml, /<title>2026\.10\.6婚礼邀请函<\/title>/);
-  assert.match(sourceHtml, /app\.js\?v=20260903-seat-photo-2/);
+  assert.match(sourceHtml, /app\.js\?v=20260903-welcome-copy/);
   assert.match(sourceHtml, /content="李辰海&沙雷雨馨"/);
   assert.match(sourceHtml, /property="og:url" content="https:\/\/wedding-invitation\.pages\.dev\/invitation\/index\.html"/);
   assert.match(sourceHtml, /property="og:image" content="https:\/\/mmbiz\.qpic\.cn\/mmbiz_jpg\/p1q58J1IVH5h1jyvzma5wcRcoDXhJskxtyqrCicWce4RpgrwQJjEyMibcBveofSZXYXFiaz0QI7OgcGtmXRjptz1de0lbkvsuI0KJ5xyRibcoDk\/640\?wx_fmt=jpeg&amp;from=appmsg"/);
@@ -146,7 +146,8 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceConfig, /heroImage:\s*"\.\/assets\/wedding-hero\.jpg"/);
   assert.match(sourceConfig, /dateISO:\s*"2026-10-06T11:18:00\+08:00"/);
   assert.match(sourceConfig, /venue:\s*"中原油田宾馆（二所）"/);
-  assert.match(sourceConfig, /time:\s*"10:00"[\s\S]*title:\s*"迎宾"[\s\S]*与亲友相见、聊天、拍照/);
+  assert.match(sourceConfig, /time:\s*"10:00"[\s\S]*title:\s*"迎宾"[\s\S]*与亲友相见、聊天、拍照。/);
+  assert.doesNotMatch(sourceConfig, /把这段等待也留成纪念/);
   assert.match(sourceConfig, /time:\s*"11:18"[\s\S]*title:\s*"仪式开始（草坪仪式）"/);
   assert.match(sourceConfig, /time:\s*"12:18"[\s\S]*title:\s*"婚礼午宴"/);
   assert.match(sourceStyles, /--canvas:\s*#d7e3ee/);
@@ -190,7 +191,7 @@ test("ships the approved wedding photo and cool-neutral theme", async () => {
   assert.match(sourceConfig, /groomPhone:\s*"13164039297"/);
   assert.match(sourceConfig, /bridePhone:\s*"16639311246"/);
   assert.match(sourceConfig, /audioUrl:\s*"\.\/assets\/audio\/a-thousand-years-lullaby\.mp3"/);
-  assert.match(sourceConfig, /assetVersion:\s*"20260903-seat-photo-2"/);
+  assert.match(sourceConfig, /assetVersion:\s*"20260903-welcome-copy"/);
   assert.match(sourceConfig, /volume:\s*0\.72/);
   assert.match(sourceApp, /id="musicButton"/);
   assert.match(sourceApp, /attemptAutoplayMusic/);
