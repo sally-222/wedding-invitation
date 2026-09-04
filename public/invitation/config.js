@@ -1,5 +1,5 @@
 window.WEDDING_CONFIG = {
-  assetVersion: "20260903-travel-typo",
+  assetVersion: "20260904-welcome-copy",
   couple: {
     groom: "李辰海",
     bride: "沙雷雨馨",
@@ -46,7 +46,7 @@ window.WEDDING_CONFIG = {
     imgUrl: "https://mmbiz.qpic.cn/mmbiz_jpg/p1q58J1IVH5h1jyvzma5wcRcoDXhJskxtyqrCicWce4RpgrwQJjEyMibcBveofSZXYXFiaz0QI7OgcGtmXRjptz1de0lbkvsuI0KJ5xyRibcoDk/640?wx_fmt=jpeg&from=appmsg",
   },
   schedule: [
-    { time: "10:00", title: "迎宾", detail: "与亲友相见、聊天、拍照。" },
+    { time: "10:00", title: "迎宾", detail: "与亲友相见、聊天、拍照" },
     { time: "11:18", title: "仪式开始（草坪仪式）", detail: "请提前入席，将手机调至静音" },
     { time: "12:18", title: "婚礼午宴", detail: "一起举杯，慢慢享用午宴" },
   ],
